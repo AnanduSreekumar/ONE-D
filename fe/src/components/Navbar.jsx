@@ -23,8 +23,7 @@ import {
   AlertDialogFooter,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { useContext, useRef } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
@@ -32,11 +31,10 @@ export default function Navbar() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
-  const { user, setUser } = useContext(AuthContext);
   const { colorMode, toggleColorMode } = useColorMode();
   const logout = () => {
     onClose();
-    setUser(null);
+    localStorage.removeItem("email");
     return navigate("/login");
   };
   return (
@@ -56,43 +54,37 @@ export default function Navbar() {
               <IconButton onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </IconButton>
-              {user && (
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    rounded={"full"}
-                    variant={"link"}
-                    cursor={"pointer"}
-                    minW={0}
-                  >
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rounded={"full"}
+                  variant={"link"}
+                  cursor={"pointer"}
+                  minW={0}
+                >
+                  <Avatar
+                    size={"sm"}
+                    src={"https://avatars.dicebear.com/api/male/username.svg"}
+                  />
+                </MenuButton>
+
+                <MenuList alignItems={"center"}>
+                  <br />
+                  <Center>
                     <Avatar
-                      size={"sm"}
+                      size={"2xl"}
                       src={"https://avatars.dicebear.com/api/male/username.svg"}
                     />
-                  </MenuButton>
-
-                  <MenuList alignItems={"center"}>
-                    <br />
-                    <Center>
-                      <Avatar
-                        size={"2xl"}
-                        src={
-                          "https://avatars.dicebear.com/api/male/username.svg"
-                        }
-                      />
-                    </Center>
-                    <br />
-                    <Center>
-                      <p>{user.email}</p>
-                    </Center>
-                    <br />
-                    <MenuDivider />
-                    <MenuItem>Your Servers</MenuItem>
-                    <MenuItem>Account Settings</MenuItem>
-                    <MenuItem onClick={onOpen}>Logout</MenuItem>
-                  </MenuList>
-                </Menu>
-              )}
+                  </Center>
+                  <br />
+                  <Center>
+                    <p>User</p>
+                  </Center>
+                  <br />
+                  <MenuDivider />
+                  <MenuItem onClick={onOpen}>Logout</MenuItem>
+                </MenuList>
+              </Menu>
             </Stack>
           </Flex>
         </Flex>

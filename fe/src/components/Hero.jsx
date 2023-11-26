@@ -46,7 +46,7 @@ export default function Hero() {
             alignSelf={"center"}
             position={"relative"}
           >
-            <Link to="/create">
+            <Link to="/login">
               <Button colorScheme={"teal"} rounded={"full"} px={6}>
                 Get Started
               </Button>
