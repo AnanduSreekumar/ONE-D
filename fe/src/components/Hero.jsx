@@ -9,9 +9,26 @@ import {
   useColorModeValue,
   createIcon,
 } from "@chakra-ui/react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { Typewriter, useTypewriter } from "react-simple-typewriter";
 
 export default function Hero() {
+  const scrollRef = useRef(null);
+
+  const [text] = useTypewriter({
+    words: ["ID.", "ONE-D!"],
+    delaySpeed: 2000,
+    typeSpeed: 200,
+    cursorStyle: "_",
+  });
+
+  const scrollDown = () => {
+    window.scrollTo({
+      top: 500,
+      behavior: "smooth",
+    });
+  };
   return (
     <>
       <Container maxW={"3xl"}>
@@ -29,7 +46,16 @@ export default function Hero() {
           >
             create your <br />
             <Text as={"span"} color={"primary"}>
-              unique id.
+              unique{" "}
+              <Typewriter
+                words={["ID.", "ONE-D!"]}
+                loop={1}
+                cursor
+                cursorStyle="|"
+                typeSpeed={100}
+                deleteSpeed={100}
+                delaySpeed={2000}
+              />
             </Text>
           </Heading>
           <Text color={"gray.500"}>
@@ -51,7 +77,13 @@ export default function Hero() {
                 Get Started
               </Button>
             </Link>
-            <Button variant={"link"} colorScheme={"teal"} size={"md"}>
+
+            <Button
+              onClick={scrollDown}
+              variant={"link"}
+              colorScheme={"teal"}
+              size={"md"}
+            >
               Learn more
             </Button>
             <Box>
@@ -74,6 +106,25 @@ export default function Hero() {
                 Starting at $15/mo
               </Text>
             </Box>
+          </Stack>
+          <Stack
+            direction={"column"}
+            align={"center"}
+            alignSelf={"center"}
+            position={"relative"}
+          >
+            <div>
+              <iframe
+                style={{ borderRadius: "10px" }}
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/TvD2M7JQdms?si=Lht0QnbbuFhNk93Y"
+                title="YouTube video player"
+                frameborder="10"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
           </Stack>
         </Stack>
       </Container>

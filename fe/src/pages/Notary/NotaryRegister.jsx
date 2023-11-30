@@ -17,15 +17,16 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   ModalFooter,
   useDisclosure,
   HStack,
-  PinInput,
-  PinInputField,
+  Switch,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import Securesvg from "../../assets/Secure.svg";
+
+import Checkersvg from "../../assets/Checker.svg";
 import Welcomesvg from "../../assets/welcome.svg";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -36,7 +37,7 @@ import { CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js";
 import userpool from "../../utils/userpool";
 import axios from "axios";
 
-export default function Register() {
+export default function NotaryRegister() {
   const toast = useToast();
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +49,8 @@ export default function Register() {
   const [pass, setPass] = useState("");
   const [verifyProcess, setVerifyProcess] = useState(false);
   const [OTP, setOTP] = useState("");
+  const [Notary, setNotary] = useState(false);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   let navigate = useNavigate();
 
@@ -261,6 +264,21 @@ export default function Register() {
             <Stack spacing={6}>
               <Stack
                 direction={{ base: "column", sm: "row" }}
+                align={"center"}
+                justify={"start"}
+              >
+                <Switch
+                  colorScheme="teal"
+                  onChange={() => setNotary(!Notary)}
+                  value={Notary}
+                  size="lg"
+                />
+                <Text>Are you a Notary?</Text>
+              </Stack>
+            </Stack>
+            <Stack spacing={6}>
+              <Stack
+                direction={{ base: "column", sm: "row" }}
                 align={"start"}
                 justify={"space-between"}
               >
@@ -269,7 +287,7 @@ export default function Register() {
                   <ChakraLink
                     color={"teal.400"}
                     as={ReactRouterLink}
-                    to="/login"
+                    to="/notary/login"
                   >
                     login
                   </ChakraLink>
@@ -286,7 +304,25 @@ export default function Register() {
           </Stack>
         </Flex>
         <Flex flex={1} mt={5}>
-          <Image boxSize="80vh" alt={"Login Image"} src={Welcomesvg} />
+          {Notary ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Image boxSize="80vh" alt={"Secure Image"} src={Securesvg} />
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Image boxSize="80vh" alt={"Cheker Image"} src={Checkersvg} />
+            </motion.div>
+          )}
         </Flex>
       </Stack>
     </motion.div>

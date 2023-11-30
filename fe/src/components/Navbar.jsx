@@ -29,6 +29,8 @@ import { useNavigate } from "react-router-dom";
 export default function Navbar() {
   let navigate = useNavigate();
 
+  const user = localStorage.getItem("email");
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
   const { colorMode, toggleColorMode } = useColorMode();
@@ -39,7 +41,7 @@ export default function Navbar() {
   };
   return (
     <>
-      <Box bg={useColorModeValue("teal", "teal")} px={4}>
+      <Box bg={"teal"} px={4}>
         <Flex
           style={{ maxWidth: "1300px", margin: "auto" }}
           h={16}
@@ -47,44 +49,48 @@ export default function Navbar() {
           justifyContent={"space-between"}
         >
           <Box color={"gray.100"}>
-            <Text fontSize="2xl">One-d</Text>
+            <Text fontSize="2xl">ONE-D</Text>
           </Box>
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <IconButton onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </IconButton>
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  rounded={"full"}
-                  variant={"link"}
-                  cursor={"pointer"}
-                  minW={0}
-                >
-                  <Avatar
-                    size={"sm"}
-                    src={"https://avatars.dicebear.com/api/male/username.svg"}
-                  />
-                </MenuButton>
-
-                <MenuList alignItems={"center"}>
-                  <br />
-                  <Center>
+              {user && (
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    rounded={"full"}
+                    variant={"link"}
+                    cursor={"pointer"}
+                    minW={0}
+                  >
                     <Avatar
-                      size={"2xl"}
+                      size={"sm"}
                       src={"https://avatars.dicebear.com/api/male/username.svg"}
                     />
-                  </Center>
-                  <br />
-                  <Center>
-                    <p>User</p>
-                  </Center>
-                  <br />
-                  <MenuDivider />
-                  <MenuItem onClick={onOpen}>Logout</MenuItem>
-                </MenuList>
-              </Menu>
+                  </MenuButton>
+
+                  <MenuList alignItems={"center"}>
+                    <br />
+                    <Center>
+                      <Avatar
+                        size={"2xl"}
+                        src={
+                          "https://avatars.dicebear.com/api/male/username.svg"
+                        }
+                      />
+                    </Center>
+                    <br />
+                    <Center>
+                      <p>{user || ""}</p>
+                    </Center>
+                    <br />
+                    <MenuDivider />
+                    <MenuItem onClick={onOpen}>Logout</MenuItem>
+                  </MenuList>
+                </Menu>
+              )}
             </Stack>
           </Flex>
         </Flex>
