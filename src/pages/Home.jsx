@@ -6,6 +6,7 @@ const Home = () => {
   return (
     <>
       <Hero />
+      {console.log(import.meta.env.VITE_REACT_APP_USER_POOL_ID)}
     </>
   );
 };
