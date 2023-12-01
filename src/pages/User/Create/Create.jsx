@@ -19,10 +19,9 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import Idform from "../../../components/Forms/User/forms/Idform";
-import Fileform from "../../../components/Forms/User/forms/Fileform";
-import EditForm from "../../../components/Forms/User/forms/EditForm";
+import EditForm from "../../../components/Forms/User/forms/Editform";
 import FinalForm from "../../../components/Forms/User/forms/Finalform";
-import PaymentForm from "../../../components/Forms/User/forms/PaymentForm";
+import PaymentForm from "../../../components/Forms/User/forms/Paymentform";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AddIcon } from "@chakra-ui/icons";
