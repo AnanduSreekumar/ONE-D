@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -10,16 +10,43 @@ import {
   Select,
   Stack,
 } from "@chakra-ui/react";
+import axios from "axios";
 
-function FinalForm() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+function FinalForm({ step, setActiveStep }) {
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
   const [notary, setNotary] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [dateOfIssue, setDateOfIssue] = useState("");
+  const [values, setvalues] = useState([]);
+
+  const handleNotary = () => {
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/get_notary_service",
+        {
+          country: "United States",
+          state: "California",
+          pincode: "950132",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+          setvalues(response.data.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <Box px={12}>
@@ -55,6 +82,11 @@ function FinalForm() {
         </FormControl>
       </Flex>
       <Flex>
+        <Button mx={2} w={"full"} size="lg" m={4} onClick={handleNotary}>
+          Check Notary
+        </Button>
+      </Flex>
+      <Flex>
         <FormControl
           isDisabled={pincode === "" ? true : false}
           isRequired
@@ -66,14 +98,30 @@ function FinalForm() {
             value={notary}
             onChange={(e) => setNotary(e.target.value)}
           >
-            <option value="UPS">UPS</option>
-            <option value="Notary1">Notary1</option>
-            <option value="Notary2">Notary2</option>
+            <>
+              <option value="UPS">Jeswanth</option>
+            </>
           </Select>
         </FormControl>
       </Flex>
 
-      <FormControl isRequired p={2}>
+      <Flex>
+        <Button
+          mx={2}
+          w={"full"}
+          bgGradient="linear(to-r, red.500, yellow.500)"
+          _hover={{
+            bgGradient: "linear(to-r, red.600, yellow.600)",
+          }}
+          size="lg"
+          m={4}
+          onClick={() => setActiveStep(step + 1)}
+        >
+          Next
+        </Button>
+      </Flex>
+
+      {/* <FormControl isRequired p={2}>
         <FormLabel>Mode</FormLabel>
         <Flex justifyContent={"space-between"}>
           <Button mx={2} w={"full"} size="lg">
@@ -91,7 +139,7 @@ function FinalForm() {
             Express
           </Button>
         </Flex>
-      </FormControl>
+      </FormControl> */}
     </Box>
   );
 }

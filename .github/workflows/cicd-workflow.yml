@@ -25,4 +25,4 @@ jobs:
       - name: Delete container
         run: docker rm -f nodejs-app-container
       - name: Run docker container
-        run: docker run -d -p 80:3000 --name nodejs-app-container -p 80:3000 jeswanthv01/cicd
+        run: docker run -d -p 80:3000 --name nodejs-app-container -p 3000:3000 jeswanthv01/cicd

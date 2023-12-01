@@ -21,6 +21,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Waitingsvg from "../assets/waiting.svg";
 import Errorsvg from "../assets/Error.svg";
+import axios from "axios";
 
 import UserFile from "../components/UserFile";
 import Card_id from "../components/Card_id";
@@ -33,39 +34,44 @@ const Home = () => {
   const navigate = useNavigate();
   // const [data, setData] = useState(null);
   const [verified, setVerified] = useState(false);
+  const [status, setStatus] = useState("");
 
   // const apiUrl = config.apiUrl;
-  const files = [
-    {
-      title: "file1.txt",
-      url: "https://www.catholicsingles.com/wp-content/uploads/2020/06/blog-header-3.png",
-      size: "10KB",
-    },
-    { title: "file2.jpg", size: "500KB" },
-    { title: "file3.pdf", size: "1MB" },
-  ];
-  // const fetchData = async (user) => {
-  //   try {
-  //     const response = await axios.get(`${apiUrl}/api/files`, {
-  //       params: { user },
-  //     });
-  //     setData(response.data);
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     // Handle errors
-  //     console.log(error);
-  //   }
-  // };
+  const fetchData = async () => {
+    let user = localStorage.getItem("email");
+    await axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/login",
+        {
+          email: user,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          setStatus(response.data.data[0][0]);
+          console.log(response);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   useEffect(() => {
-    const user = localStorage.getItem("email");
-    if (!user) {
-      navigate("/login");
-    }
+    fetchData();
   }, []);
 
   return (
     <>
+      {console.log(status)}
       <Flex w={"1000px"} justifyContent={"end"} mt={5}>
         <a
           href="https://getjobber.com/wp-content/uploads/2022/08/Receipt-template-top.png"
@@ -83,16 +89,29 @@ const Home = () => {
         maxW={"1000px"}
       >
         <Stack>
-          {verified ? (
+          {status === "verified" && (
             <>
               <Card_id />
             </>
-          ) : (
+          )}
+          {status === "data_updated" && (
             <>
-              <Image boxSize="60vh" alt={"Login Image"} src={Errorsvg} />
-              <Text textAlign={"center"} fontSize="2xl" fontWeight="bold">
-                Notary has denied your request
-              </Text>
+              <>
+                <Image boxSize="60vh" alt={"Login Image"} src={Waitingsvg} />
+                <Text textAlign={"center"} fontSize="2xl" fontWeight="bold">
+                  Notary is processing your request...
+                </Text>
+              </>
+            </>
+          )}
+          {status === "verificiation_failed" && (
+            <>
+              <>
+                <Image boxSize="60vh" alt={"Login Image"} src={Errorsvg} />
+                <Text textAlign={"center"} fontSize="2xl" fontWeight="bold">
+                  Notary has denied your request.
+                </Text>
+              </>
             </>
           )}
         </Stack>

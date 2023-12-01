@@ -1,5 +1,4 @@
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -10,22 +9,69 @@ import {
   Input,
   Select,
   Stack,
+  Textarea,
 } from "@chakra-ui/react";
+import { getAge } from "../../../utils/data";
+import axios from "axios";
 
-function EditForm() {
-  const { register, handleSubmit } = useForm({
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      country: "",
-      state: "",
-      dateOfBirth: "",
-      dateOfIssue: "",
-    },
-  });
+function EditForm({ step, setActiveStep }) {
+  const [firstname, setfirstname] = useState("");
+  const [middlename, setmiddlename] = useState("");
+  const [lastname, setlastname] = useState("");
+  const [sex, setsex] = useState("");
+  const [address, setaddress] = useState("");
+  const [pincode, setpincode] = useState("");
+  const [drivingtype, setdrivingtype] = useState("");
+  const [occupation, setoccupation] = useState("");
+  const [Country, setCountry] = useState("");
+  const [county, setcounty] = useState("");
+  const [state, setstate] = useState("");
+  const [expiry, setexpiry] = useState("");
+  const [Dob, setDob] = useState("");
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const handleSubmit = (e) => {
+    let user = localStorage.getItem("email");
+    const age = getAge(Dob);
+
+    e.preventDefault();
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/set_textract_data",
+        {
+          email: user,
+          address,
+          country: Country,
+          state: state,
+          pincode: pincode,
+          firstname,
+          lastname,
+          county,
+          middlename: middlename,
+          driving_license: drivingtype,
+          age: age,
+          sex: sex,
+          expiry: expiry,
+          occupation: occupation,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+          setActiveStep(step + 1);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setloading(false);
+      });
   };
 
   return (
@@ -35,20 +81,30 @@ function EditForm() {
           Edit info
         </Heading>
       </Stack>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit}>
         <Flex mt={3}>
           <FormControl isRequired p={2}>
             <FormLabel>First Name</FormLabel>
             <Input
               placeholder="First Name"
-              {...register("firstName", { required: true })}
+              value={firstname}
+              onChange={(e) => setfirstname(e.target.value)}
+            />
+          </FormControl>
+          <FormControl p={2}>
+            <FormLabel>Middle Name</FormLabel>
+            <Input
+              placeholder="First Name"
+              value={middlename}
+              onChange={(e) => setmiddlename(e.target.value)}
             />
           </FormControl>
           <FormControl isRequired p={2}>
             <FormLabel>Last Name</FormLabel>
             <Input
               placeholder="Last Name"
-              {...register("lastName", { required: true })}
+              value={lastname}
+              onChange={(e) => setlastname(e.target.value)}
             />
           </FormControl>
         </Flex>
@@ -57,14 +113,73 @@ function EditForm() {
             <FormLabel>Country</FormLabel>
             <Input
               placeholder="Country"
-              {...register("country", { required: true })}
+              value={Country}
+              onChange={(e) => setCountry(e.target.value)}
             />
           </FormControl>
           <FormControl isRequired p={2}>
             <FormLabel>State</FormLabel>
             <Input
               placeholder="State"
-              {...register("state", { required: true })}
+              value={state}
+              onChange={(e) => setstate(e.target.value)}
+            />
+          </FormControl>
+        </Flex>
+        <Flex>
+          <FormControl isRequired p={2}>
+            <FormLabel>county</FormLabel>
+            <Input
+              placeholder="county"
+              value={county}
+              onChange={(e) => setcounty(e.target.value)}
+            />
+          </FormControl>
+          <FormControl isRequired p={2}>
+            <FormLabel>pincode</FormLabel>
+            <Input
+              placeholder="pincode"
+              value={pincode}
+              onChange={(e) => setpincode(e.target.value)}
+            />
+          </FormControl>
+        </Flex>
+        <Flex>
+          <FormControl isRequired p={2}>
+            <FormLabel>sex</FormLabel>
+            <Input
+              placeholder="sex"
+              value={sex}
+              onChange={(e) => setsex(e.target.value)}
+            />
+          </FormControl>
+
+          <FormControl isRequired p={2}>
+            <FormLabel>occupation</FormLabel>
+            <Input
+              placeholder="occupation"
+              value={occupation}
+              onChange={(e) => setoccupation(e.target.value)}
+            />
+          </FormControl>
+        </Flex>
+        <Flex>
+          <FormControl isRequired p={2}>
+            <FormLabel>Address</FormLabel>
+            <Textarea
+              placeholder="address"
+              value={address}
+              onChange={(e) => setaddress(e.target.value)}
+            />
+          </FormControl>
+        </Flex>
+        <Flex>
+          <FormControl p={2}>
+            <FormLabel>Driving type(if required)</FormLabel>
+            <Input
+              placeholder="drivingtype"
+              value={drivingtype}
+              onChange={(e) => setdrivingtype(e.target.value)}
             />
           </FormControl>
         </Flex>
@@ -73,15 +188,19 @@ function EditForm() {
           <FormControl isRequired p={2}>
             <FormLabel>Date of Birth</FormLabel>
             <Input
-              type="date"
-              {...register("dateOfBirth", { required: true })}
+              type="text"
+              placeholder="(MM/DD/YYYY)"
+              value={Dob}
+              onChange={(e) => setDob(e.target.value)}
             />
           </FormControl>
           <FormControl isRequired p={2}>
-            <FormLabel>Date of Issue</FormLabel>
+            <FormLabel>Expiry</FormLabel>
             <Input
-              type="date"
-              {...register("dateOfIssue", { required: true })}
+              type="text"
+              placeholder="(MM/YYYY)"
+              value={expiry}
+              onChange={(e) => setexpiry(e.target.value)}
             />
           </FormControl>
         </Flex>

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import Card_id from "../../components/Card_id";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Card,
   CardHeader,
+  CardBody,
   Checkbox,
   Flex,
   FormControl,
@@ -14,18 +14,169 @@ import {
   Input,
   Stack,
   Text,
+  Box,
+  Heading,
+  Textarea,
+  Spinner,
 } from "@chakra-ui/react";
+import axios from "axios";
 
 const NotaryDashboard = () => {
-  const [country, setCountry] = useState("United States");
+  let user = localStorage.getItem("email");
+  const [status, setStatus] = useState("");
+  const [loading, setloading] = useState(true);
+  const [dispute, setDispute] = useState(false);
+  const [disputetext, setDisputetext] = useState("");
+  const [id, setId] = useState("");
+  const [OTP, setOTP] = useState("");
 
-  const [state, setState] = useState("California");
+  const handleVerification = (e) => {
+    e.preventDefault();
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/login_one_id",
+        {
+          otp: OTP,
+          one_id: id,
+        }
+      )
+      .then(function (response) {
+        console.log(response);
+        // window.location = "/auth";
+      })
+      .catch(function (error) {
+        console.log(error);
+        // susetShow(true);
+      });
+    console.log(id, OTP);
+  };
 
-  const [firstname, setFirstname] = useState("Jeswanth");
+  const handleStatus = (e) => {
+    e.preventDefault();
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/set_verification",
+        {
+          email: user,
+          address: Naddress,
+          country: Ncountry,
+          state: Nstate,
+          pincode: Npincode,
+          firstname: Nfirstname,
+          lastname: Nlastname,
+          county: Ncounty,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/set_textract_data",
+        {
+          email: user,
+          address: Naddress,
+          country: Ncountry,
+          state: Nstate,
+          pincode: Npincode,
+          firstname: Nfirstname,
+          lastname: Nlastname,
+          county: Ncounty,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+          setStatus(response.data.data[0][0]);
+          setloading(false);
+          setFirstname(status[2]);
+          setLastname(status[3]);
+          setCountry(status[10]);
+          setState(status[12]);
+          setdob(status[6]);
+          setExpiry("10/10/2025");
+          getStatus();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setloading(false);
+      });
+  };
 
-  const [lastname, setLastname] = useState("vadlamudi");
-  const [Dob, setdob] = useState("10/25/2001");
-  const [expiry, setExpiry] = useState("10/25/2001");
+  const getStatus = () => {
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/login",
+        { email: user },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+          setStatus(response.data.data[0][0]);
+          setloading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setloading(false);
+      });
+  };
+
+  useEffect(() => {
+    return () => {
+      getStatus();
+    };
+  }, []);
+
+  const [Nlastname, setNlastname] = useState("");
+  const [Npincode, setNpincode] = useState("");
+  const [Ncounty, setNcounty] = useState("");
+  const [Naddress, setNaddress] = useState("");
+  const [Ncountry, setNcountry] = useState("");
+  const [Nstate, setNstate] = useState("");
+  const [Nfirstname, setNfirstname] = useState("");
+  const [country, setCountry] = useState(status[10]);
+
+  const [state, setState] = useState("");
+
+  const [firstname, setFirstname] = useState("");
+
+  const [lastname, setLastname] = useState("");
+  const [Dob, setdob] = useState("");
+  const [expiry, setExpiry] = useState("");
   const [sign, setSign] = useState("");
   const [checkedItems, setCheckedItems] = useState([
     false,
@@ -41,159 +192,303 @@ const NotaryDashboard = () => {
 
   return (
     <>
-      <Flex
-        alignItems={"center"}
-        justifyContent={"center"}
-        margin={"auto"}
-        maxW={"1000px"}
-        my={10}
-      >
-        <Stack>
-          <Card_id />
-          <Text fontWeight={"bold"} fontSize={"4xl"}>
-            User Details
-          </Text>
-          <Card my={4} p={4}>
-            <Image
-              height="250px"
-              mb={3}
-              w={"full"}
-              objectFit={"contain"}
-              src="https://imengine.prod.srp.navigacloud.com/?uuid=30C5FDA4-714D-4543-B902-56AB5904A2ED&type=primary&q=72&width=1024"
-              // Revoke data uri after image is loaded
-              onLoad={() => {
-                URL.revokeObjectURL(file.preview);
-              }}
-            />
-          </Card>
-          <Checkbox
-            colorScheme="teal"
-            isChecked={allChecked}
-            isIndeterminate={isIndeterminate}
-            onChange={(e) =>
-              setCheckedItems([
-                e.target.checked,
-                e.target.checked,
-                e.target.checked,
-                e.target.checked,
-                e.target.checked,
-                e.target.checked,
-              ])
-            }
+      {loading ? (
+        <>
+          <Spinner size="xl" />
+        </>
+      ) : (
+        <>
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            margin={"auto"}
+            maxW={"1000px"}
+            my={10}
           >
-            Check all items
-          </Checkbox>
-          <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-            <Flex alignItems={"center"}>
-              <FormControl id="firstname">
-                <FormLabel>firstname</FormLabel>
-                <Input disabled value={firstname} type="text" />
-              </FormControl>
-              <Checkbox
-                isChecked={checkedItems[0]}
-                onChange={(e) =>
-                  setCheckedItems([e.target.checked, checkedItems[1]])
-                }
-                colorScheme="teal"
-                ml={3}
-                mt={7}
-              />
-            </Flex>
-            <Flex alignItems={"center"}>
-              <FormControl id="lastname">
-                <FormLabel>lastname</FormLabel>
-                <Input disabled value={lastname} type="text" />
-              </FormControl>
-              <Checkbox
-                isChecked={checkedItems[1]}
-                onChange={(e) =>
-                  setCheckedItems([checkedItems[0], e.target.checked])
-                }
-                colorScheme="teal"
-                ml={3}
-                mt={7}
-              />
-            </Flex>
-            <Flex alignItems={"center"}>
-              <FormControl id="country">
-                <FormLabel>country</FormLabel>
-                <Input disabled value={country} type="text" />
-              </FormControl>
-              <Checkbox
-                isChecked={checkedItems[2]}
-                onChange={(e) =>
-                  setCheckedItems([...checkedItems[1], e.target.checked])
-                }
-                colorScheme="teal"
-                ml={3}
-                mt={7}
-              />
-            </Flex>
-            <Flex alignItems={"center"}>
-              <FormControl id="state">
-                <FormLabel>state</FormLabel>
-                <Input disabled value={state} type="text" />
-              </FormControl>
-              <Checkbox
-                isChecked={checkedItems[3]}
-                onChange={(e) =>
-                  setCheckedItems([...checkedItems[2], e.target.checked])
-                }
-                colorScheme="teal"
-                ml={3}
-                mt={7}
-              />
-            </Flex>
-            <Flex alignItems={"center"}>
-              <FormControl id="Dob">
-                <FormLabel>Dob</FormLabel>
-                <Input disabled value={Dob} type="text" />
-              </FormControl>
-              <Checkbox
-                isChecked={checkedItems[4]}
-                onChange={(e) =>
-                  setCheckedItems([...checkedItems[3], e.target.checked])
-                }
-                colorScheme="teal"
-                ml={3}
-                mt={7}
-              />
-            </Flex>
-            <Flex alignItems={"center"}>
-              <FormControl id="Expiry">
-                <FormLabel>Expiry</FormLabel>
-                <Input disabled value={expiry} type="text" />
-              </FormControl>
-              <Checkbox
-                isChecked={checkedItems[5]}
-                onChange={(e) =>
-                  setCheckedItems([...checkedItems[4], e.target.checked])
-                }
-                colorScheme="teal"
-                ml={3}
-                mt={7}
-              />
-            </Flex>
-            <GridItem colSpan={2}>
-              <FormControl isRequired id="sign">
-                <FormLabel>Signature</FormLabel>
-                <Input
-                  value={sign}
-                  onChange={(e) => setSign(e.target.value)}
-                  type="text"
-                />
-              </FormControl>
-            </GridItem>
-            <Button colorScheme="red">Dispute</Button>
-            <Button
-              isDisabled={sign.length < 3 && !allChecked}
-              colorScheme="teal"
-            >
-              Approve
-            </Button>
-          </Grid>
-        </Stack>
-      </Flex>
+            <Stack>
+              <Card>
+                <CardHeader>
+                  <Text fontSize={"3xl"}>Verfication</Text>
+                </CardHeader>
+                <CardBody>
+                  <FormControl my={3} id="id">
+                    <FormLabel>id</FormLabel>
+                    <Input
+                      value={id}
+                      onChange={(e) => setId(e.target.value)}
+                      type="text"
+                    />
+                  </FormControl>
+                  <FormControl id="OTP">
+                    <FormLabel>OTP</FormLabel>
+                    <Input
+                      value={OTP}
+                      onChange={(e) => setOTP(e.target.value)}
+                      type="text"
+                    />
+                  </FormControl>
+                </CardBody>
+                <Button onClick={handleVerification} m={4}>
+                  Submit
+                </Button>
+              </Card>
+            </Stack>
+          </Flex>
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            margin={"auto"}
+            maxW={"1000px"}
+            my={10}
+          >
+            {console.log(status)}
+
+            {status === "created" ? (
+              <>
+                <Box px={12}>
+                  <Stack spacing={4} w={"full"} maxW={"md"}>
+                    <Heading
+                      lineHeight={1.1}
+                      fontSize={{ base: "2xl", sm: "3xl" }}
+                    >
+                      Notary info
+                    </Heading>
+                  </Stack>
+                  <form onSubmit={handleSubmit}>
+                    <Flex mt={3}>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>First Name</FormLabel>
+                        <Input
+                          placeholder="First Name"
+                          value={Nfirstname}
+                          onChange={(e) => setNfirstname(e.target.value)}
+                        />
+                      </FormControl>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>Last Name</FormLabel>
+                        <Input
+                          placeholder="Last Name"
+                          value={Nlastname}
+                          onChange={(e) => setNlastname(e.target.value)}
+                        />
+                      </FormControl>
+                    </Flex>
+                    <Flex>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>Country</FormLabel>
+                        <Input
+                          placeholder="Country"
+                          value={Ncountry}
+                          onChange={(e) => setNcountry(e.target.value)}
+                        />
+                      </FormControl>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>State</FormLabel>
+                        <Input
+                          placeholder="State"
+                          value={Nstate}
+                          onChange={(e) => setNstate(e.target.value)}
+                        />
+                      </FormControl>
+                    </Flex>
+                    <Flex>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>pin code</FormLabel>
+                        <Input
+                          placeholder="pincode"
+                          value={Npincode}
+                          onChange={(e) => setNpincode(e.target.value)}
+                        />
+                      </FormControl>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>County</FormLabel>
+                        <Input
+                          placeholder="county"
+                          value={Ncounty}
+                          onChange={(e) => setNcounty(e.target.value)}
+                        />
+                      </FormControl>
+                    </Flex>
+                    <Flex>
+                      <FormControl isRequired p={2}>
+                        <FormLabel>Address</FormLabel>
+                        <Textarea
+                          placeholder="address"
+                          value={Naddress}
+                          onChange={(e) => setNaddress(e.target.value)}
+                        />
+                      </FormControl>
+                    </Flex>
+
+                    <Button
+                      mt={4}
+                      colorScheme="orange"
+                      variant="outline"
+                      w={"full"}
+                      type="submit"
+                    >
+                      Submit
+                    </Button>
+                  </form>
+                </Box>
+              </>
+            ) : (
+              <Stack>
+                <Text fontWeight={"bold"} fontSize={"4xl"}>
+                  User Details
+                </Text>
+
+                <Checkbox
+                  colorScheme="teal"
+                  isChecked={allChecked}
+                  isIndeterminate={isIndeterminate}
+                  onChange={(e) =>
+                    setCheckedItems([
+                      e.target.checked,
+                      e.target.checked,
+                      e.target.checked,
+                      e.target.checked,
+                      e.target.checked,
+                      e.target.checked,
+                    ])
+                  }
+                >
+                  Check all items
+                </Checkbox>
+                <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                  <Flex alignItems={"center"}>
+                    <FormControl id="firstname">
+                      <FormLabel>firstname</FormLabel>
+                      <Input disabled value={firstname} type="text" />
+                    </FormControl>
+                    <Checkbox
+                      isChecked={checkedItems[0]}
+                      onChange={(e) =>
+                        setCheckedItems([e.target.checked, checkedItems[1]])
+                      }
+                      colorScheme="teal"
+                      ml={3}
+                      mt={7}
+                    />
+                  </Flex>
+                  <Flex alignItems={"center"}>
+                    <FormControl id="lastname">
+                      <FormLabel>lastname</FormLabel>
+                      <Input disabled value={lastname} type="text" />
+                    </FormControl>
+                    <Checkbox
+                      isChecked={checkedItems[1]}
+                      onChange={(e) =>
+                        setCheckedItems([checkedItems[0], e.target.checked])
+                      }
+                      colorScheme="teal"
+                      ml={3}
+                      mt={7}
+                    />
+                  </Flex>
+                  <Flex alignItems={"center"}>
+                    <FormControl id="country">
+                      <FormLabel>country</FormLabel>
+                      <Input disabled value={country} type="text" />
+                    </FormControl>
+                    <Checkbox
+                      isChecked={checkedItems[2]}
+                      onChange={(e) =>
+                        setCheckedItems([...checkedItems[1], e.target.checked])
+                      }
+                      colorScheme="teal"
+                      ml={3}
+                      mt={7}
+                    />
+                  </Flex>
+                  <Flex alignItems={"center"}>
+                    <FormControl id="state">
+                      <FormLabel>state</FormLabel>
+                      <Input disabled value={state} type="text" />
+                    </FormControl>
+                    <Checkbox
+                      isChecked={checkedItems[3]}
+                      onChange={(e) =>
+                        setCheckedItems([...checkedItems[2], e.target.checked])
+                      }
+                      colorScheme="teal"
+                      ml={3}
+                      mt={7}
+                    />
+                  </Flex>
+                  <Flex alignItems={"center"}>
+                    <FormControl id="Dob">
+                      <FormLabel>Age</FormLabel>
+                      <Input disabled value={Dob} type="text" />
+                    </FormControl>
+                    <Checkbox
+                      isChecked={checkedItems[4]}
+                      onChange={(e) =>
+                        setCheckedItems([...checkedItems[3], e.target.checked])
+                      }
+                      colorScheme="teal"
+                      ml={3}
+                      mt={7}
+                    />
+                  </Flex>
+                  <Flex alignItems={"center"}>
+                    <FormControl id="Expiry">
+                      <FormLabel>Expiry</FormLabel>
+                      <Input disabled value={expiry} type="text" />
+                    </FormControl>
+                    <Checkbox
+                      isChecked={checkedItems[5]}
+                      onChange={(e) =>
+                        setCheckedItems([...checkedItems[4], e.target.checked])
+                      }
+                      colorScheme="teal"
+                      ml={3}
+                      mt={7}
+                    />
+                  </Flex>
+                  <GridItem colSpan={2}>
+                    <FormControl isRequired id="sign">
+                      <FormLabel>Signature</FormLabel>
+                      <Input
+                        value={sign}
+                        onChange={(e) => setSign(e.target.value)}
+                        type="text"
+                      />
+                    </FormControl>
+                  </GridItem>
+                  {dispute && (
+                    <GridItem colSpan={2}>
+                      <FormControl isRequired id="sign">
+                        <FormLabel>Comment</FormLabel>
+
+                        <Textarea
+                          value={disputetext}
+                          onChange={(e) => setDisputetext(e.target.value)}
+                          type="text"
+                        />
+                      </FormControl>
+                    </GridItem>
+                  )}
+
+                  <Button
+                    onClick={() => setDispute(!dispute)}
+                    colorScheme="red"
+                  >
+                    {dispute ? "Cancel Dispute" : "Dispute"}
+                  </Button>
+                  <Button
+                    onClick={handleStatus}
+                    isDisabled={sign.length < 3}
+                    colorScheme="teal"
+                  >
+                    Approve
+                  </Button>
+                </Grid>
+              </Stack>
+            )}
+          </Flex>
+        </>
+      )}
     </>
   );
 };

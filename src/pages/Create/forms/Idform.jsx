@@ -39,40 +39,56 @@ export default function Idform({ step, setActiveStep }) {
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [files, setFiles] = useState([]);
+
+  const picUpload = async (e) => {
+    let user = localStorage.getItem("email");
+    let formData = new FormData();
+    console.log(file);
+    formData.append("file", file);
+    formData.append("doc_type", "profice_pic");
+    formData.append("doc_country", country);
+    formData.append("doc_state", state);
+    formData.append("email", user);
+
+    await axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+          toast({
+            title: "Picture Uploaded",
+            position: "top",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          // setShow(true);
+        }
+      });
+  };
+
   const handleChange = async (e) => {
     setFile(e.target.files[0]);
     console.log(step);
     setPreview(URL.createObjectURL(e.target.files[0]));
-    let formData = new FormData();
-    console.log(file);
-    formData.append("file", file);
-    formData.append("doc_type", type);
-    formData.append("doc_country", country);
-    formData.append("doc_state", state);
-    formData.append("email", "jeswanthv01@gmail.com");
-
-    // await axios
-    //   .post("https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/upload", formData, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   })
-    //   .then((response) => {
-    //     console.log(response);
-    //     if (response.status === 200) {
-    //       // window.location.reload();
-    //       // window.location = "/files";
-    //       console.log(response);
-    //     }
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //     if (error.response) {
-    //       // The request was made and the server responded with a status code
-    //       // that falls out of the range of 2xx
-    //       // setShow(true);
-    //     }
-    //   });
   };
   const clearFile = (e) => {
     setFile(null);
@@ -129,17 +145,17 @@ export default function Idform({ step, setActiveStep }) {
   const { colorMode } = useColorMode();
   const handleSubmit = (event) => {
     setLoading(true);
-
+    let user = localStorage.getItem("email");
     let formData = new FormData();
     formData.append("file", files[0]);
     formData.append("doc_type", type);
     formData.append("doc_country", country);
     formData.append("doc_state", state);
-    formData.append("email", "jeswanthv01@gmail.com");
+    formData.append("email", user);
     try {
       axios
         .post(
-          "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/upload",
+          "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app//upload",
           formData,
           {
             headers: {
@@ -179,6 +195,7 @@ export default function Idform({ step, setActiveStep }) {
         });
     } catch {
       // setShow(true);
+      setLoading(false);
     }
   };
   return (
@@ -211,6 +228,11 @@ export default function Idform({ step, setActiveStep }) {
               <Input padding={1} type="file" w="full" onChange={handleChange} />
             </Center>
           </Stack>
+          {file && (
+            <Button mt={3} padding={1} type="file" w="full" onClick={picUpload}>
+              Upload picture
+            </Button>
+          )}
         </FormControl>
         <IdType
           setType={setType}

@@ -88,48 +88,49 @@ export default function Register() {
     e.preventDefault();
     console.log(email, pass, firstName, lastName);
     try {
-      // const attributeList = [];
-      // attributeList.push(
-      //   new CognitoUserAttribute({
-      //     Name: "email",
-      //     Value: email,
-      //   })
-      // );
-      // let username = email;
-      // userpool.signUp(username, pass, attributeList, null, (err, data) => {
-      //   if (err) {
-      //     toast({
-      //       title: "Password Error",
-      //       position: "top",
-      //       description: err.message,
-      //       status: "error",
-      //       duration: 9000,
-      //       isClosable: true,
-      //     });
-      //   } else {
-      //     console.log(data);
-      //     toast({
-      //       title: "Otp sent",
-      //       position: "top",
-      //       status: "success",
-      //       duration: 9000,
-      //       isClosable: true,
-      //     });
-      //     setVerifyProcess(true);
-
-      // Navigate("/files");
-      //   }
-      // });
-      axios
-        .post("http://10.0.0.74:5000/create_account", {
-          firstname: firstName,
-          lastname: lastName,
-          middlename: middelName,
-          country,
-          state,
-          email: email,
-          password: pass,
+      const attributeList = [];
+      attributeList.push(
+        new CognitoUserAttribute({
+          Name: "email",
+          Value: email,
         })
+      );
+      let username = email;
+      userpool.signUp(username, pass, attributeList, null, (err, data) => {
+        if (err) {
+          toast({
+            title: "Password Error",
+            position: "top",
+            description: err.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        } else {
+          console.log(data);
+          toast({
+            title: "Otp sent",
+            position: "top",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+          setVerifyProcess(true);
+        }
+      });
+      axios
+        .post(
+          "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/create_account",
+          {
+            firstname: firstName,
+            lastname: lastName,
+            middlename: middelName,
+            country,
+            state,
+            email: email,
+            password: pass,
+          }
+        )
         .then(function (response) {
           console.log(response);
           // window.location = "/auth";

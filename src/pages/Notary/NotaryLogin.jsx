@@ -36,54 +36,53 @@ export default function NotaryLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [Notary, setNotary] = useState(false);
 
-  //   const handleLogin = async (e) => {
-  //     e.preventDefault();
-  //     try {
-  //       authenticate(email, pass)
-  //         .then(
-  //           (data) => {
-  //             console.log(data);
-  //             toast({
-  //               title: "Successfully logged in",
-  //               position: "top",
-  //               status: "success",
-  //               duration: 9000,
-  //               isClosable: true,
-  //             });
-  //             localStorage.setItem("email", email);
-  //             return navigate("/create");
-  //           },
-  //           (err) => {
-  //             console.log(err);
-  //             toast({
-  //               title: "Error",
-  //               position: "top",
-  //               description: "Please type in valid credentials",
-  //               status: "error",
-  //               duration: 9000,
-  //               isClosable: true,
-  //             });
-  //           }
-  //         )
-  //         .catch((err) => console.log(err));
-
-  //       if (email === "jeswanthv01@gmail.com") {
-  //         localStorage.setItem("email", email);
-  //         return navigate("/admin");
-  //       }
-  //       // return navigate("/create");
-  //     } catch (error) {
-  //       console.error("Login failed", error);
-  //       toast({
-  //         title: "Error",
-  //         position: "top",
-  //         description: "Invalid Credentials",
-  //         status: "error",
-  //         duration: 9000,
-  //         isClosable: true,
-  //       });
-  //     }
-  //   };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      authenticate(email, pass)
+        .then(
+          (data) => {
+            console.log(data);
+            toast({
+              title: "Successfully logged in",
+              position: "top",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            localStorage.setItem("email", email);
+            if (Notary) {
+              return navigate("/notary");
+            } else {
+              return navigate("/checker");
+            }
+          },
+          (err) => {
+            console.log(err);
+            toast({
+              title: "Error",
+              position: "top",
+              description: "Please type in valid credentials",
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+        )
+        .catch((err) => console.log(err));
+      // return navigate("/create");
+    } catch (error) {
+      console.error("Login failed", error);
+      toast({
+        title: "Error",
+        position: "top",
+        description: "Invalid Credentials",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -157,7 +156,11 @@ export default function NotaryLogin() {
                   </ChakraLink>
                 </Text>
               </Stack>
-              <Button colorScheme={"teal"} variant={"solid"}>
+              <Button
+                onClick={handleLogin}
+                colorScheme={"teal"}
+                variant={"solid"}
+              >
                 Sign in
               </Button>
             </Stack>

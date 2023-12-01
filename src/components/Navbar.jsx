@@ -21,8 +21,11 @@ import {
   AlertDialogHeader,
   AlertDialogBody,
   AlertDialogFooter,
+  Button as ChakraLink,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { Link as ReactRouterLink } from "react-router-dom";
+
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -56,6 +59,11 @@ export default function Navbar() {
               <IconButton onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </IconButton>
+              {!user && (
+                <ChakraLink as={ReactRouterLink} to="/notary/login">
+                  Notary/checker
+                </ChakraLink>
+              )}
               {user && (
                 <Menu>
                   <MenuButton

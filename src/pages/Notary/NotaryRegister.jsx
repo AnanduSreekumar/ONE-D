@@ -17,10 +17,13 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
+  ModalCloseButton,
   ModalBody,
   ModalFooter,
   useDisclosure,
   HStack,
+  PinInput,
+  PinInputField,
   Switch,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -29,17 +32,18 @@ import Securesvg from "../../assets/Secure.svg";
 import Checkersvg from "../../assets/Checker.svg";
 import Welcomesvg from "../../assets/welcome.svg";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
 import { register } from "../../utils/apiService";
-// import userpool from "../../utils/userpool";
 import { CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js";
 import userpool from "../../utils/userpool";
+import { motion } from "framer-motion";
+
 import axios from "axios";
 
-export default function NotaryRegister() {
+export default function Register() {
   const toast = useToast();
   const [email, setEmail] = useState("");
+  const [address, setaddress] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [middelName, setMiddelname] = useState("");
@@ -82,7 +86,7 @@ export default function NotaryRegister() {
           isClosable: true,
         });
         setVerifyProcess(false);
-        return navigate("/login");
+        return navigate("/notary/login");
       }
     });
   };
@@ -91,48 +95,50 @@ export default function NotaryRegister() {
     e.preventDefault();
     console.log(email, pass, firstName, lastName);
     try {
-      // const attributeList = [];
-      // attributeList.push(
-      //   new CognitoUserAttribute({
-      //     Name: "email",
-      //     Value: email,
-      //   })
-      // );
-      // let username = email;
-      // userpool.signUp(username, pass, attributeList, null, (err, data) => {
-      //   if (err) {
-      //     toast({
-      //       title: "Password Error",
-      //       position: "top",
-      //       description: err.message,
-      //       status: "error",
-      //       duration: 9000,
-      //       isClosable: true,
-      //     });
-      //   } else {
-      //     console.log(data);
-      //     toast({
-      //       title: "Otp sent",
-      //       position: "top",
-      //       status: "success",
-      //       duration: 9000,
-      //       isClosable: true,
-      //     });
-      //     setVerifyProcess(true);
-
-      // Navigate("/files");
-      //   }
-      // });
-      axios
-        .post("http://10.0.0.74:5000/create_account", {
-          firstname: firstName,
-          lastname: lastName,
-          middlename: middelName,
-          country,
-          state,
-          email: email,
-          password: pass,
+      const attributeList = [];
+      attributeList.push(
+        new CognitoUserAttribute({
+          Name: "email",
+          Value: email,
         })
+      );
+      let username = email;
+      userpool.signUp(username, pass, attributeList, null, (err, data) => {
+        if (err) {
+          toast({
+            title: "Password Error",
+            position: "top",
+            description: err.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        } else {
+          console.log(data);
+          toast({
+            title: "Otp sent",
+            position: "top",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+          setVerifyProcess(true);
+        }
+      });
+      axios
+        .post(
+          "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/create_account",
+          {
+            firstname: firstName,
+            lastname: lastName,
+            middlename: middelName,
+            country,
+            state,
+            email: email,
+            password: pass,
+            role: Notary ? "notary" : "checker",
+          }
+        )
         .then(function (response) {
           console.log(response);
           // window.location = "/auth";
@@ -241,6 +247,7 @@ export default function NotaryRegister() {
                 type="email"
               />
             </FormControl>
+
             <FormControl id="password" isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup>
@@ -264,21 +271,6 @@ export default function NotaryRegister() {
             <Stack spacing={6}>
               <Stack
                 direction={{ base: "column", sm: "row" }}
-                align={"center"}
-                justify={"start"}
-              >
-                <Switch
-                  colorScheme="teal"
-                  onChange={() => setNotary(!Notary)}
-                  value={Notary}
-                  size="lg"
-                />
-                <Text>Are you a Notary?</Text>
-              </Stack>
-            </Stack>
-            <Stack spacing={6}>
-              <Stack
-                direction={{ base: "column", sm: "row" }}
                 align={"start"}
                 justify={"space-between"}
               >
@@ -287,11 +279,26 @@ export default function NotaryRegister() {
                   <ChakraLink
                     color={"teal.400"}
                     as={ReactRouterLink}
-                    to="/notary/login"
+                    to="/login"
                   >
                     login
                   </ChakraLink>
                 </Text>
+              </Stack>
+              <Stack spacing={6}>
+                <Stack
+                  direction={{ base: "column", sm: "row" }}
+                  align={"center"}
+                  justify={"start"}
+                >
+                  <Switch
+                    colorScheme="teal"
+                    onChange={() => setNotary(!Notary)}
+                    value={Notary}
+                    size="lg"
+                  />
+                  <Text>Are you a Notary?</Text>
+                </Stack>
               </Stack>
               <Button
                 onClick={handleRegister}

@@ -26,7 +26,7 @@ import PaymentForm from "./forms/Paymentform";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AddIcon } from "@chakra-ui/icons";
-
+import axios from "axios";
 const steps = [
   { title: "First", description: "ID Info" },
   { title: "Second", description: "Edit Info" },
@@ -36,8 +36,55 @@ const steps = [
 
 const Create = () => {
   const navigate = useNavigate();
-
-  const [inputList, setInputList] = useState([<Idform />]);
+  let formData = new FormData();
+  let user = localStorage.getItem("email");
+  formData.append("email", user);
+  const [status, setstatus] = useState("");
+  const { activeStep, setActiveStep } = useSteps({
+    index: 0,
+    count: steps.length,
+  });
+  useEffect(() => {
+    axios
+      .post(
+        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/login",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          // window.location.reload();
+          // window.location = "/files";
+          console.log(response);
+          setstatus(response.data.data[0][0]);
+          console.log(status);
+          if (status === "created") {
+            setActiveStep(0);
+          }
+          if (status === "upload") {
+            setActiveStep(1);
+          }
+          if (status === "data_updated") {
+            setActiveStep(2);
+          }
+          if (
+            status !== "created" &&
+            status !== "upload" &&
+            status !== "data_updated"
+          ) {
+            // return navigate("/dashboard");
+          }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const onAddBtnClick = (event) => {
     const newInput = Date.now();
@@ -49,10 +96,7 @@ const Create = () => {
       navigate("/login");
     }
   }, []);
-  const { activeStep, setActiveStep } = useSteps({
-    index: 0,
-    count: steps.length,
-  });
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -117,18 +161,6 @@ const Create = () => {
                     setActiveStep={setActiveStep}
                   />
                 )}
-                {/* <Stack margin={5} spacing={6} direction={["column", "row"]}>
-                  <Button
-                    rightIcon={<AddIcon />}
-                    colorScheme="teal"
-                    variant="outline"
-                    w={"full"}
-                    mx={"5"}
-                    onClick={onAddBtnClick}
-                  >
-                    Add another file
-                  </Button>
-                </Stack> */}
 
                 <Stack margin={5} spacing={6} direction={["column", "row"]}>
                   <Button
