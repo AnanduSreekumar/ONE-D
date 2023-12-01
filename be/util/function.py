@@ -1,31 +1,11 @@
 import boto3, botocore
 import pymysql
+import random
 from pymysql import *
 from werkzeug.utils import secure_filename
 from boto3 import *
 from os import environ
-
-AWS_BUCKET_NAME= 
-AWS_ACCESS_KEY= 
-AWS_SECRET_ACCESS_KEY= 
-AWS_S3_REGION_NAME= 
-AWS_DOMAIN= 
-AWS_CLOUDFRONT_KEY_ID= 
-AWS_CLOUDFRONT_KEY=
-RDS_SCHEMA= 
-RDS_FILE_INFO= 
-RDS_USER_INFO= 
-RDS_HOST= '
-RDS_USERNAME= 
-RDS_PASSWORD= 
-RDS_DATABASE= 
-RDS_PORT=
-ADMIN = 
-SCHEMA = RDS_SCHEMA
-TABLE_FILE_INFO = RDS_FILE_INFO
-TABLE_USER_INFO = RDS_USER_INFO
-CF_URL = AWS_DOMAIN
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif','pdf'}
+import json
 
 
 s3 = boto3.client(
@@ -34,23 +14,41 @@ s3 = boto3.client(
     aws_secret_access_key= AWS_SECRET_ACCESS_KEY
 )
 
-def upload_file_to_s3(file,file_desc,email):
-    filename = secure_filename(file.filename)
-    file_data = {}
+def cred_cognito_fn():
+    return {'USER_POOL':COGNITO_USER_POOL_ID,'CLIENT_ID':COGNITO_CLIENT_ID}
+
+def upload_file_to_s3(file,file_data):
+    email = file_data.get('email')
+    one_id = get_one_id(email)
+    file_name = secure_filename(str(one_id)+'_'+file_data.get('doc_type')+'.'+file.filename.rsplit('.', 1)[1].lower())
+    print(file_name)
     try:
-        s3.upload_fileobj(file,AWS_BUCKET_NAME,filename)
+        s3.upload_fileobj(file,AWS_BUCKET_NAME,file_name)
     except Exception as e:
-        message = "Error running query:{0} Generated error: {1}".format(filename,str(e))
+        message = "Error running query:{0} Generated error: {1}".format(file_name,str(e))
+        print(message)
         return False
     else:
-        message = "Successfully uploaded {}".format(filename)
-        file_data['file_name'] = filename
-        file_data['file_desc'] = file_desc
-        file_data['email'] = email
+        message = "Successfully uploaded {}".format(file_name)
+        print(message)
         if not save_file_name_to_rds(file_data):
             return False
-    print(message)
     return True
+
+def run_textract(file_name):
+    input_data = {'file_name':file_name}
+    response = boto3.client('lambda',
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name= AWS_S3_REGION_NAME
+    ).invoke(
+        FunctionName= LAMBDA_TEXTRACT,
+        InvocationType='RequestResponse',
+        Payload=json.dumps(input_data),
+    )
+    return json.loads(response['Payload'].read().decode("utf-8"))
+
+
 
 def connect_mysql():
     db = pymysql.connect(host = RDS_HOST, user= RDS_USERNAME, password = RDS_PASSWORD, database = RDS_DATABASE)
@@ -65,6 +63,7 @@ def set_upsert_rds(query):
         cursor.execute(query)
     except Exception as e:
         message = "Error running query:{0} Generated error: {1}".format(query,str(e))
+        print(message)
         return False
     else:
         db.commit()
@@ -91,16 +90,169 @@ def get_info_rds(query):
     print(message)
     return data
 
-def save_file_name_to_rds(data):
-    #functions to save filename to rds
-    file_name = data.get('file_name')
-    file_description = data.get('file_desc')
-    email = data.get('email')
-    query = ("INSERT INTO {0}.{1} (file_name, file_desc,email,status,file_uploaded_timestamp,last_updated_timestamp)\
-            VALUES ('{2}','{3}','{4}','INSERT', NOW(),NOW());"
-             .format(SCHEMA,TABLE_FILE_INFO,file_name,file_description, email))
+def get_one_id(email):
+    query = ("select one_id from {0}.{1} where email = '{2}' and status in ('created','upload') ".format(SCHEMA,TABLE_USER_INFO,email))
+    return get_info_rds(query)[0][0]
+
+def save_file_name_to_rds(file_data):
+    #functions to save documents to rds
+    doc_type = file_data.get('doc_type')
+    doc_country = file_data.get('doc_country')
+    doc_state = file_data.get('doc_state')
+    one_id = get_one_id(file_data.get('email'))
+    query = ("INSERT INTO {0}.{1} (one_id, doc_type, doc_country, doc_state, doc_uploaded_timestamp) \
+            VALUES ({2},'{3}','{4}','{5}',NOW());"
+             .format(SCHEMA,TABLE_DOC_INFO,one_id,doc_type,doc_country,doc_state))
     return set_upsert_rds(query)
 
+def set_textract_data(data):
+    #functions to save extracted data to rds
+    one_id = get_one_id(data.get('email'))
+    firstname = data.get('firstname')
+    middlename = data.get('middlename','')
+    lastname = data.get('lastname')
+    age = data.get('age', 0)
+    sex = data.get('sex','NA')
+    address = data.get('address','NA')
+    country = data.get('country','NA')
+    county = data.get('county','NA')
+    state = data.get('state','NA')
+    pincode = data.get('pincode',00000)
+    driving_license = data.get('driving_license','NA')
+    occupation = data.get('occupation','NA')
+    blood_type = data.get('blood_type','NA')
+    document_expiry_date = data.get('document_expiry_date','1/1/1996')
+    query = ("INSERT INTO {0}.{1} (one_id, firstname,middlename,lastname,age,sex,address,country,county,state,pincode,driving_license,blood_type,occupation, document_expiry_date ,last_updated_timestamp) \
+            VALUES ({2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}','{10}','{11}','{12}','{13}','{14}','{15}','{16}',NOW());"
+             .format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,one_id, firstname,middlename,lastname,age,sex,address,country,county,state,pincode,driving_license,blood_type,occupation, document_expiry_date))
+    return set_upsert_rds(query)
+
+
+def get_user_extracted_data_rds(data):
+    #functions to retrieve get_user_extracted_data from  rds
+    email = data.get('email',None)
+    one_id = data.get('one_id',None)
+    if email is not None:
+        print('searching with email')
+        query = ("select {1}.* from {0}.{1} join {0}.{2} on {1}.one_id = {2}.one_id where  {2}.email = '{3}' ".format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,TABLE_USER_INFO,email)) 
+    else:
+        print('searching with one_id')
+        query = ("select * from {0}.{1} where one_id = {2} ".format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,str(one_id))) 
+    return get_info_rds(query)
+
+def get_user_status_role_rds(data):
+    #functions to retrieve user status and role based on  email/one_id from  rds
+    email = data.get('email',None)
+    one_id = data.get('one_id',None)
+    if email is not None:
+        print('fetching info with email')
+        query = ("select status,role from {0}.{1} where email = '{2}' ".format(SCHEMA,TABLE_USER_INFO,email)) 
+    else:
+        print('fetching info with one_id')
+        query = ("select status,role from {0}.{1} where one_id = {2}".format(SCHEMA,TABLE_USER_INFO,str(one_id))) 
+    return get_info_rds(query)
+
+def confirm_user_one_id(user_data):
+    #confirm user one_id
+    one_id = user_data.get('one_id')    
+    query = ("select generated_otp  from {0}.{1} \
+    where one_id = {2}".format(SCHEMA,TABLE_USER_INFO,one_id))
+    if int(user_data.get('otp')) == int(get_info_rds(query)[0][0]):
+        return True
+    else:
+        return False
+
+def set_user_account(user_data):
+    #CREATE USER ACCOUNT
+    firstname = user_data.get('firstname')
+    middlename  = user_data.get('middlename','')
+    lastname  = user_data.get('lastname')
+    country  = user_data.get('country')
+    state  = user_data.get('state')
+    role = user_data.get('role','user')
+    email     = user_data.get('email').lower()
+    otp = generate_otp()
+    query     = ("INSERT INTO {0}.{1} (firstname,middlename,lastname,email,role,country,state,generated_otp,status,last_updated_timestamp ,profile_created_date)\
+            VALUES ('{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','created', NOW(), NOW());"
+             .format(SCHEMA,TABLE_USER_INFO,firstname,middlename,lastname,email,role,country,state,otp))
+    return set_upsert_rds(query)
+
+def notify_user_otp(user_data):
+    #pending
+    print("Sending notification on OTP")
+
+def generate_otp():
+    #OTP GENERATOR
+    return random.randint(10000, 99999)
+
+def reset_one_id_otp(user_data):
+    #reset otp
+    otp = generate_otp()
+    one_id = user_data.get('one_id')  
+    query = ("update {0}.{1} set generated_otp = {2}, last_updated_timestamp = NOW() \
+    where one_id = {3}".format(SCHEMA,TABLE_USER_INFO,otp,one_id))
+    notify_user_otp(user_data)
+    return set_upsert_rds(query)
+
+def update_user_status(user_data,status):
+    #update_user_status
+    email = user_data.get('email',None) 
+    one_id = user_data.get('one_id',None)
+    if email is not None:
+        where_condition = " email = '{}'".format(email)
+    else:
+        where_condition = " one_id = {}".format(one_id)
+    query = ("update {0}.{1} set status = '{2}', last_updated_timestamp = NOW() where {3}".format(SCHEMA,TABLE_USER_INFO,status,where_condition))
+    return set_upsert_rds(query)
+
+
+def get_notary_service_rds(user_data):
+    #confirm user one_id
+    country = user_data.get('country')
+    state = user_data.get('state')
+    pincode = user_data.get('pincode')
+    query = """SELECT 
+                CONCAT_WS(' ', {1}.firstname, {1}.middlename, {1}.lastname) AS notary_name,
+                {2}.email,
+                CONCAT_WS(', ', {1}.address, {1}.county, {1}.state, {1}.country, {1}.pincode) AS full_address
+                FROM 
+                    {0}.{1}
+                JOIN 
+                    {0}.{2} ON {1}.one_id = {2}.one_id
+                WHERE 
+                    {2}.role = 'notary' AND
+                    {1}.country = '{3}' AND
+                    {1}.state = '{4}'
+                ORDER BY 
+                    {1}.country ASC, 
+                    {1}.state ASC, 
+                    {1}.pincode ASC;
+                """.format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,TABLE_USER_INFO,country,state)
+    return get_info_rds(query)
+
+def set_user_verification_rds(verification_data):
+    #verifiy user account
+    one_id = verification_data.get('one_id')
+    veri_status = verification_data.get('veri_status')
+    veri_comments = verification_data.get('veri_comments')
+    verifier_email = verification_data.get('verifier_email')
+    country = verification_data.get('country')
+    state = verification_data.get('state')
+    query_insert  = ("INSERT INTO {0}.{1} (one_id, veri_status, veri_comments, verifier_email, country, state, updated_timestamp)\
+            VALUES ('{2}','{3}','{4}','{5}','{6}','{7}', NOW());"
+             .format(SCHEMA,TABLE_VERIFICATION_INFO,one_id,veri_status,veri_comments, verifier_email, country, state))
+    query_update = ("""UPDATE {0}.{1} SET veri_id = (SELECT veri_id FROM {0}.{2}
+                      WHERE one_id = {3}
+                      AND verifier_email = '{4}'
+                      AND country = '{5}'
+                      AND state = '{6}')
+                WHERE one_id = {3};
+                """.format(SCHEMA,TABLE_DOC_INFO,TABLE_VERIFICATION_INFO,one_id,verifier_email,country,state))
+    if set_upsert_rds(query_insert):
+        return set_upsert_rds(query_update)
+    else:
+        return False
+    
 def get_file_names_rds(email):
     #functions to retrieve filenames
     if email  == ADMIN:
@@ -161,26 +313,7 @@ def terminate_user_rds(email):
     query = ("delete from {0}.{1} where email = '{2}'".format(SCHEMA,TABLE_USER_INFO,email))
     return set_upsert_rds(query)
 
-def set_user_account(user_data):
-    #CREATE USER ACCOUNT
-    firstname = user_data.get('firstname')
-    lastname  = user_data.get('lastname')
-    email     = user_data.get('email').lower()
-    password  = user_data.get('password')
-    query     = ("INSERT INTO {0}.{1} (firstname,lastname,email, password,last_updated_timestamp)\
-            VALUES ('{2}','{3}','{4}','{5}', NOW());"
-             .format(SCHEMA,TABLE_USER_INFO,firstname,lastname,email,password))
-    return set_upsert_rds(query)
 
-def confirm_user_access(user_data):
-    #get user info
-    email = user_data.get('email')    
-    query = ("select password from {0}.{1} \
-    where email = '{2}'".format(SCHEMA,TABLE_USER_INFO,email))
-    if user_data.get('password') == get_info_rds(query)[0][0]:
-        return True
-    else:
-        return False
 
 def delete_file_s3(file_name,email):
     #delete files
