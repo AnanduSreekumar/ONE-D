@@ -13,16 +13,13 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-import Loginsvg from "../../assets/login.svg";
+import Loginsvg from "../../../assets/login.svg";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { login } from "../../utils/apiService";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
-import userpool from "../../utils/userpool";
-import { authenticate } from "../../utils/authenticate";
+import { authenticate } from "../../../utils/cognito";
 
 export default function Login() {
   const toast = useToast();
@@ -34,51 +31,31 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      authenticate(email, pass)
-        .then(
-          (data) => {
-            console.log(data);
-            toast({
-              title: "Successfully logged in",
-              position: "top",
-              status: "success",
-              duration: 9000,
-              isClosable: true,
-            });
-            localStorage.setItem("email", email);
-            return navigate("/create");
-          },
-          (err) => {
-            console.log(err);
-            toast({
-              title: "Error",
-              position: "top",
-              description: "Please type in valid credentials",
-              status: "error",
-              duration: 9000,
-              isClosable: true,
-            });
-          }
-        )
-        .catch((err) => console.log(err));
 
-      if (email === "jeswanthv01@gmail.com") {
+    authenticate(email, pass).then(
+      (data) => {
+        toast({
+          title: "Successfully logged in",
+          position: "top",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+
         localStorage.setItem("email", email);
-        return navigate("/admin");
+        return navigate("/create");
+      },
+      (err) => {
+        toast({
+          title: "Error",
+          position: "top",
+          description: "Please type in valid credentials",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
       }
-      // return navigate("/create");
-    } catch (error) {
-      console.error("Login failed", error);
-      toast({
-        title: "Error",
-        position: "top",
-        description: "Invalid Credentials",
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-      });
-    }
+    );
   };
   return (
     <motion.div

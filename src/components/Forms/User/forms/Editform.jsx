@@ -11,23 +11,23 @@ import {
   Stack,
   Textarea,
 } from "@chakra-ui/react";
-import { getAge } from "../../../utils/data";
+import { getAge } from "../../../../utils/data";
 import axios from "axios";
 
 function EditForm({ step, setActiveStep }) {
-  const [firstname, setfirstname] = useState("");
+  const [firstname, setfirstname] = useState("Anandu");
   const [middlename, setmiddlename] = useState("");
-  const [lastname, setlastname] = useState("");
-  const [sex, setsex] = useState("");
+  const [lastname, setlastname] = useState("Sreekumar");
+  const [sex, setsex] = useState("Male");
   const [address, setaddress] = useState("");
   const [pincode, setpincode] = useState("");
   const [drivingtype, setdrivingtype] = useState("");
   const [occupation, setoccupation] = useState("");
-  const [Country, setCountry] = useState("");
+  const [Country, setCountry] = useState("India");
   const [county, setcounty] = useState("");
-  const [state, setstate] = useState("");
-  const [expiry, setexpiry] = useState("");
-  const [Dob, setDob] = useState("");
+  const [state, setstate] = useState("Kerala");
+  const [expiry, setexpiry] = useState("02/07/2027");
+  const [Dob, setDob] = useState("04/07/1996");
 
   const handleSubmit = (e) => {
     let user = localStorage.getItem("email");

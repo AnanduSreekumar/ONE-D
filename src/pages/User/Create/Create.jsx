@@ -18,11 +18,11 @@ import {
   Button,
   Stack,
 } from "@chakra-ui/react";
-import Idform from "./forms/Idform";
-import Fileform from "./forms/Fileform";
-import EditForm from "./forms/Editform";
-import FinalForm from "./forms/Finalform";
-import PaymentForm from "./forms/Paymentform";
+import Idform from "../../../components/Forms/User/forms/Idform";
+import Fileform from "../../../components/Forms/User/forms/Fileform";
+import EditForm from "../../../components/Forms/User/forms/EditForm";
+import FinalForm from "../../../components/Forms/User/forms/Finalform";
+import PaymentForm from "../../../components/Forms/User/forms/PaymentForm";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AddIcon } from "@chakra-ui/icons";
@@ -85,11 +85,6 @@ const Create = () => {
         console.log(err);
       });
   }, []);
-
-  const onAddBtnClick = (event) => {
-    const newInput = Date.now();
-    setInputList((v) => [...v, newInput]);
-  };
   useEffect(() => {
     const user = localStorage.getItem("email");
     if (!user) {

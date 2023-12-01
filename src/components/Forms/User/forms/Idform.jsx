@@ -25,7 +25,7 @@ import {
   TriangleUpIcon,
 } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
-import IdType from "../../../components/IdType";
+import IdType from "../../../../components/IdType";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 

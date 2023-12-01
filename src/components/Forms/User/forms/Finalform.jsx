@@ -99,7 +99,8 @@ function FinalForm({ step, setActiveStep }) {
             onChange={(e) => setNotary(e.target.value)}
           >
             <>
-              <option value="UPS">Jeswanth</option>
+              <option value="UPS">Jeswanth-UPS</option>
+              <option value="UPS">Sai-UPS</option>
             </>
           </Select>
         </FormControl>

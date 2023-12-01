@@ -17,23 +17,18 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   ModalFooter,
   useDisclosure,
   HStack,
-  PinInput,
-  PinInputField,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import Welcomesvg from "../../assets/welcome.svg";
+import Welcomesvg from "../../../assets/welcome.svg";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
-import { register } from "../../utils/apiService";
-// import userpool from "../../utils/userpool";
 import { CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js";
-import userpool from "../../utils/userpool";
+import userpool from "../../../utils/userpool";
 import axios from "axios";
 
 export default function Register() {
@@ -137,9 +132,7 @@ export default function Register() {
         })
         .catch(function (error) {
           console.log(error);
-          // susetShow(true);
         });
-      // await register(email, pass);
     } catch (error) {
       console.error("Sign up failed", error);
       toast({

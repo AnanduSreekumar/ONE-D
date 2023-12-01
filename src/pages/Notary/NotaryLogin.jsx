@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
 import userpool from "../../utils/userpool";
-import { authenticate } from "../../utils/authenticate";
+import { authenticate } from "../../utils/cognito";
 
 export default function NotaryLogin() {
   const toast = useToast();

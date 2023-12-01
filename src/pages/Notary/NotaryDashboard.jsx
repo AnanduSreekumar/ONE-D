@@ -20,10 +20,13 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { Link as ChakraLink } from "@chakra-ui/react";
 
 const NotaryDashboard = () => {
   let user = localStorage.getItem("email");
   const [status, setStatus] = useState("");
+  const [values, setvalues] = useState([]);
+
   const [loading, setloading] = useState(true);
   const [dispute, setDispute] = useState(false);
   const [disputetext, setDisputetext] = useState("");
@@ -43,6 +46,14 @@ const NotaryDashboard = () => {
       .then(function (response) {
         console.log(response);
         // window.location = "/auth";
+        setvalues(response.data.data[0][0]);
+        setFirstname(values[2]);
+        setLastname(values[3]);
+        setCountry(values[10]);
+        setState(values[12]);
+        setdob(values[6]);
+        setExpiry("10/10/2025");
+        setloading(false);
       })
       .catch(function (error) {
         console.log(error);
@@ -113,12 +124,7 @@ const NotaryDashboard = () => {
           console.log(response);
           setStatus(response.data.data[0][0]);
           setloading(false);
-          setFirstname(status[2]);
-          setLastname(status[3]);
-          setCountry(status[10]);
-          setState(status[12]);
-          setdob(status[6]);
-          setExpiry("10/10/2025");
+
           getStatus();
         }
       })
@@ -145,7 +151,6 @@ const NotaryDashboard = () => {
           // window.location.reload();
           // window.location = "/files";
           console.log(response);
-          setStatus(response.data.data[0][0]);
           setloading(false);
         }
       })
@@ -156,9 +161,7 @@ const NotaryDashboard = () => {
   };
 
   useEffect(() => {
-    return () => {
-      getStatus();
-    };
+    getStatus();
   }, []);
 
   const [Nlastname, setNlastname] = useState("");
@@ -242,250 +245,6 @@ const NotaryDashboard = () => {
             my={10}
           >
             {console.log(status)}
-
-            {status === "created" ? (
-              <>
-                <Box px={12}>
-                  <Stack spacing={4} w={"full"} maxW={"md"}>
-                    <Heading
-                      lineHeight={1.1}
-                      fontSize={{ base: "2xl", sm: "3xl" }}
-                    >
-                      Notary info
-                    </Heading>
-                  </Stack>
-                  <form onSubmit={handleSubmit}>
-                    <Flex mt={3}>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>First Name</FormLabel>
-                        <Input
-                          placeholder="First Name"
-                          value={Nfirstname}
-                          onChange={(e) => setNfirstname(e.target.value)}
-                        />
-                      </FormControl>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>Last Name</FormLabel>
-                        <Input
-                          placeholder="Last Name"
-                          value={Nlastname}
-                          onChange={(e) => setNlastname(e.target.value)}
-                        />
-                      </FormControl>
-                    </Flex>
-                    <Flex>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>Country</FormLabel>
-                        <Input
-                          placeholder="Country"
-                          value={Ncountry}
-                          onChange={(e) => setNcountry(e.target.value)}
-                        />
-                      </FormControl>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>State</FormLabel>
-                        <Input
-                          placeholder="State"
-                          value={Nstate}
-                          onChange={(e) => setNstate(e.target.value)}
-                        />
-                      </FormControl>
-                    </Flex>
-                    <Flex>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>pin code</FormLabel>
-                        <Input
-                          placeholder="pincode"
-                          value={Npincode}
-                          onChange={(e) => setNpincode(e.target.value)}
-                        />
-                      </FormControl>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>County</FormLabel>
-                        <Input
-                          placeholder="county"
-                          value={Ncounty}
-                          onChange={(e) => setNcounty(e.target.value)}
-                        />
-                      </FormControl>
-                    </Flex>
-                    <Flex>
-                      <FormControl isRequired p={2}>
-                        <FormLabel>Address</FormLabel>
-                        <Textarea
-                          placeholder="address"
-                          value={Naddress}
-                          onChange={(e) => setNaddress(e.target.value)}
-                        />
-                      </FormControl>
-                    </Flex>
-
-                    <Button
-                      mt={4}
-                      colorScheme="orange"
-                      variant="outline"
-                      w={"full"}
-                      type="submit"
-                    >
-                      Submit
-                    </Button>
-                  </form>
-                </Box>
-              </>
-            ) : (
-              <Stack>
-                <Text fontWeight={"bold"} fontSize={"4xl"}>
-                  User Details
-                </Text>
-
-                <Checkbox
-                  colorScheme="teal"
-                  isChecked={allChecked}
-                  isIndeterminate={isIndeterminate}
-                  onChange={(e) =>
-                    setCheckedItems([
-                      e.target.checked,
-                      e.target.checked,
-                      e.target.checked,
-                      e.target.checked,
-                      e.target.checked,
-                      e.target.checked,
-                    ])
-                  }
-                >
-                  Check all items
-                </Checkbox>
-                <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-                  <Flex alignItems={"center"}>
-                    <FormControl id="firstname">
-                      <FormLabel>firstname</FormLabel>
-                      <Input disabled value={firstname} type="text" />
-                    </FormControl>
-                    <Checkbox
-                      isChecked={checkedItems[0]}
-                      onChange={(e) =>
-                        setCheckedItems([e.target.checked, checkedItems[1]])
-                      }
-                      colorScheme="teal"
-                      ml={3}
-                      mt={7}
-                    />
-                  </Flex>
-                  <Flex alignItems={"center"}>
-                    <FormControl id="lastname">
-                      <FormLabel>lastname</FormLabel>
-                      <Input disabled value={lastname} type="text" />
-                    </FormControl>
-                    <Checkbox
-                      isChecked={checkedItems[1]}
-                      onChange={(e) =>
-                        setCheckedItems([checkedItems[0], e.target.checked])
-                      }
-                      colorScheme="teal"
-                      ml={3}
-                      mt={7}
-                    />
-                  </Flex>
-                  <Flex alignItems={"center"}>
-                    <FormControl id="country">
-                      <FormLabel>country</FormLabel>
-                      <Input disabled value={country} type="text" />
-                    </FormControl>
-                    <Checkbox
-                      isChecked={checkedItems[2]}
-                      onChange={(e) =>
-                        setCheckedItems([...checkedItems[1], e.target.checked])
-                      }
-                      colorScheme="teal"
-                      ml={3}
-                      mt={7}
-                    />
-                  </Flex>
-                  <Flex alignItems={"center"}>
-                    <FormControl id="state">
-                      <FormLabel>state</FormLabel>
-                      <Input disabled value={state} type="text" />
-                    </FormControl>
-                    <Checkbox
-                      isChecked={checkedItems[3]}
-                      onChange={(e) =>
-                        setCheckedItems([...checkedItems[2], e.target.checked])
-                      }
-                      colorScheme="teal"
-                      ml={3}
-                      mt={7}
-                    />
-                  </Flex>
-                  <Flex alignItems={"center"}>
-                    <FormControl id="Dob">
-                      <FormLabel>Age</FormLabel>
-                      <Input disabled value={Dob} type="text" />
-                    </FormControl>
-                    <Checkbox
-                      isChecked={checkedItems[4]}
-                      onChange={(e) =>
-                        setCheckedItems([...checkedItems[3], e.target.checked])
-                      }
-                      colorScheme="teal"
-                      ml={3}
-                      mt={7}
-                    />
-                  </Flex>
-                  <Flex alignItems={"center"}>
-                    <FormControl id="Expiry">
-                      <FormLabel>Expiry</FormLabel>
-                      <Input disabled value={expiry} type="text" />
-                    </FormControl>
-                    <Checkbox
-                      isChecked={checkedItems[5]}
-                      onChange={(e) =>
-                        setCheckedItems([...checkedItems[4], e.target.checked])
-                      }
-                      colorScheme="teal"
-                      ml={3}
-                      mt={7}
-                    />
-                  </Flex>
-                  <GridItem colSpan={2}>
-                    <FormControl isRequired id="sign">
-                      <FormLabel>Signature</FormLabel>
-                      <Input
-                        value={sign}
-                        onChange={(e) => setSign(e.target.value)}
-                        type="text"
-                      />
-                    </FormControl>
-                  </GridItem>
-                  {dispute && (
-                    <GridItem colSpan={2}>
-                      <FormControl isRequired id="sign">
-                        <FormLabel>Comment</FormLabel>
-
-                        <Textarea
-                          value={disputetext}
-                          onChange={(e) => setDisputetext(e.target.value)}
-                          type="text"
-                        />
-                      </FormControl>
-                    </GridItem>
-                  )}
-
-                  <Button
-                    onClick={() => setDispute(!dispute)}
-                    colorScheme="red"
-                  >
-                    {dispute ? "Cancel Dispute" : "Dispute"}
-                  </Button>
-                  <Button
-                    onClick={handleStatus}
-                    isDisabled={sign.length < 3}
-                    colorScheme="teal"
-                  >
-                    Approve
-                  </Button>
-                </Grid>
-              </Stack>
-            )}
           </Flex>
         </>
       )}
