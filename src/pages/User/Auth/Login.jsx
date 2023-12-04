@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { authenticate } from "../../../utils/cognito";
 
-export default function Login() {
+export default function Login({ link = "", color = "teal" }) {
   const toast = useToast();
   let navigate = useNavigate();
 
@@ -43,7 +43,8 @@ export default function Login() {
         });
 
         localStorage.setItem("email", email);
-        return navigate("/create");
+        if (link === "") return navigate("/create");
+        if (link === "/notary") return navigate("/notary");
       },
       (err) => {
         toast({
@@ -106,9 +107,9 @@ export default function Login() {
                 <Text>
                   New user?{" "}
                   <ChakraLink
-                    color={"teal.400"}
+                    color={`${color}.400`}
                     as={ReactRouterLink}
-                    to="/register"
+                    to={`${link}/register`}
                   >
                     register
                   </ChakraLink>
@@ -116,7 +117,7 @@ export default function Login() {
               </Stack>
               <Button
                 onClick={handleLogin}
-                colorScheme={"teal"}
+                colorScheme={color}
                 variant={"solid"}
               >
                 Sign in

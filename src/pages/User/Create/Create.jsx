@@ -1,31 +1,21 @@
-import React, { useEffect, useState } from "react";
 import {
+  Button,
   Card,
   CardBody,
-  Box,
-  Step,
-  StepDescription,
-  StepIcon,
-  StepIndicator,
-  StepNumber,
-  StepSeparator,
-  StepStatus,
-  StepTitle,
-  Stepper,
-  useSteps,
   Grid,
   GridItem,
-  Button,
   Stack,
+  useSteps,
 } from "@chakra-ui/react";
-import Idform from "../../../components/Forms/User/forms/Idform";
+import axios from "axios";
+import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EditForm from "../../../components/Forms/User/forms/Editform";
 import FinalForm from "../../../components/Forms/User/forms/Finalform";
+import Idform from "../../../components/Forms/User/forms/Idform";
 import PaymentForm from "../../../components/Forms/User/forms/Paymentform";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { AddIcon } from "@chakra-ui/icons";
-import axios from "axios";
+import StepperForm from "./StepperForm";
 const steps = [
   { title: "First", description: "ID Info" },
   { title: "Second", description: "Edit Info" },
@@ -71,13 +61,7 @@ const Create = () => {
           if (status === "data_updated") {
             setActiveStep(2);
           }
-          if (
-            status !== "created" &&
-            status !== "upload" &&
-            status !== "data_updated"
-          ) {
-            // return navigate("/dashboard");
-          }
+          return navigate("/dashboard");
         }
       })
       .catch((err) => {
@@ -105,36 +89,7 @@ const Create = () => {
           gap={6}
         >
           <GridItem colSpan={1}>
-            <Card>
-              <CardBody>
-                <Stepper
-                  colorScheme="teal"
-                  index={activeStep}
-                  orientation="vertical"
-                  height="400px"
-                  gap="0"
-                >
-                  {steps.map((step, index) => (
-                    <Step key={index}>
-                      <StepIndicator>
-                        <StepStatus
-                          complete={<StepIcon />}
-                          incomplete={<StepNumber />}
-                          active={<StepNumber />}
-                        />
-                      </StepIndicator>
-
-                      <Box flexShrink="0">
-                        <StepTitle>{step.description}</StepTitle>
-                        <StepDescription>{step.title}</StepDescription>
-                      </Box>
-
-                      <StepSeparator />
-                    </Step>
-                  ))}
-                </Stepper>
-              </CardBody>
-            </Card>
+            <StepperForm steps={steps} activeStep={activeStep} />
           </GridItem>
 
           <GridItem marginLeft={"5rem"} colSpan={3}>

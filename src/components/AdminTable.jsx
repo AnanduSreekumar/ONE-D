@@ -22,7 +22,7 @@ const AdminTable = () => {
     <Box w={"100%"} margin={"auto"}>
       <Flex justify={"center"} align={"center"}>
         <TableContainer mt={"50px"} width={"1000px"}>
-          <Table variant="striped" colorScheme="teal">
+          <Table variant="striped" colorScheme="blue">
             <Thead>
               <Tr>
                 <Th textAlign={"left"}>User</Th>
@@ -41,7 +41,7 @@ const AdminTable = () => {
                   <ChakraLink as={ReactRouterLink} to="/admin/1">
                     <Button
                       rightIcon={<ArrowForwardIcon />}
-                      colorScheme="teal"
+                      colorScheme="blue"
                       size="sm"
                     >
                       See more
@@ -58,7 +58,7 @@ const AdminTable = () => {
                 <Td textAlign={"right"}>
                   <Button
                     rightIcon={<ArrowForwardIcon />}
-                    colorScheme="teal"
+                    colorScheme="blue"
                     size="sm"
                   >
                     See more
@@ -74,7 +74,7 @@ const AdminTable = () => {
                 <Td textAlign={"right"}>
                   <Button
                     rightIcon={<ArrowForwardIcon />}
-                    colorScheme="teal"
+                    colorScheme="blue"
                     size="sm"
                   >
                     See more

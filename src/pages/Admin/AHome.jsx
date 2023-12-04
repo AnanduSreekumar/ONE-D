@@ -15,15 +15,7 @@ import {
 import AdminStat from "../../components/AdminStat";
 import { motion } from "framer-motion";
 
-const AdminHome = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const user = localStorage.getItem("email");
-    if (user !== "jeswanthv01@gmail.com") {
-      navigate("/login");
-    }
-  }, []);
+const AHome = () => {
   return (
     <>
       <motion.div
@@ -50,4 +42,4 @@ const AdminHome = () => {
   );
 };
 
-export default AdminHome;
+export default AHome;

@@ -1,58 +1,127 @@
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Button,
+  Link as ChakraLink,
   Flex,
-  Text,
   FormControl,
   FormLabel,
-  Heading,
-  Input,
-  Stack,
-  Image,
-  useToast,
-  Link as ChakraLink,
   Grid,
+  HStack,
+  Heading,
+  Image,
+  Input,
   InputGroup,
   InputRightElement,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
-  useDisclosure,
-  HStack,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  Text,
+  useToast,
 } from "@chakra-ui/react";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import Welcomesvg from "../../../assets/welcome.svg";
-import { useState } from "react";
+import { CognitoUser } from "amazon-cognito-identity-js";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
-import { CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js";
+import Welcomesvg from "../../../assets/welcome.svg";
+import { register } from "../../../utils/apiService";
 import userpool from "../../../utils/userpool";
-import axios from "axios";
 
-export default function Register() {
+export default function Register({ role = "user", link = "", color = "teal" }) {
   const toast = useToast();
+  let navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    firstname: "",
+    lastname: "",
+    middlename: "",
+    country: "",
+    state: "",
+    email: "",
+    password: "",
+    role,
+  });
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [firstName, setFirstName] = useState("");
-  const [middelName, setMiddelname] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [pass, setPass] = useState("");
   const [verifyProcess, setVerifyProcess] = useState(false);
   const [OTP, setOTP] = useState("");
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  let navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    register(form)
+      .then((res) => {
+        toast({
+          title: "Account Created successfully",
+          position: "top",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: "Something went wrong",
+          position: "top",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      });
+
+    // const attributeList = [];
+    // attributeList.push(
+    //   new CognitoUserAttribute({
+    //     Name: "email",
+    //     Value: email,
+    //   })
+    // );
+    // let username = form.email;
+    // userpool.signUp(
+    //   username,
+    //   form.password,
+    //   attributeList,
+    //   null,
+    //   (err, data) => {
+    //     if (err) {
+    //       toast({
+    //         title: "Password Error",
+    //         position: "top",
+    //         description: err.message,
+    //         status: "error",
+    //         duration: 9000,
+    //         isClosable: true,
+    //       });
+    //       setLoading(false);
+    //     } else {
+    //       console.log(data);
+    //       toast({
+    //         title: "Otp sent",
+    //         position: "top",
+    //         status: "success",
+    //         duration: 9000,
+    //         isClosable: true,
+    //       });
+    //       setVerifyProcess(true);
+    //     }
+    //   }
+    // );
+  };
 
   const verifyAccount = (e) => {
     e.preventDefault();
     const user = new CognitoUser({
-      Username: email,
+      Username: form.email,
       Pool: userpool,
     });
-    console.log(user);
     user.confirmRegistration(OTP, true, (err, data) => {
       if (err) {
         console.log(err);
@@ -73,78 +142,31 @@ export default function Register() {
           duration: 9000,
           isClosable: true,
         });
+        register(form)
+          .then((res) => {
+            toast({
+              title: "Account Created successfully",
+              position: "top",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+          })
+          .catch((err) => {
+            toast({
+              title: "Something went wrong",
+              position: "top",
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          });
         setVerifyProcess(false);
-        return navigate("/login");
+        return navigate(`${link}/login`);
       }
     });
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    console.log(email, pass, firstName, lastName);
-    try {
-      const attributeList = [];
-      attributeList.push(
-        new CognitoUserAttribute({
-          Name: "email",
-          Value: email,
-        })
-      );
-      let username = email;
-      userpool.signUp(username, pass, attributeList, null, (err, data) => {
-        if (err) {
-          toast({
-            title: "Password Error",
-            position: "top",
-            description: err.message,
-            status: "error",
-            duration: 9000,
-            isClosable: true,
-          });
-        } else {
-          console.log(data);
-          toast({
-            title: "Otp sent",
-            position: "top",
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-          });
-          setVerifyProcess(true);
-        }
-      });
-      axios
-        .post(
-          "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/create_account",
-          {
-            firstname: firstName,
-            lastname: lastName,
-            middlename: middelName,
-            country,
-            state,
-            email: email,
-            password: pass,
-          }
-        )
-        .then(function (response) {
-          console.log(response);
-          // window.location = "/auth";
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    } catch (error) {
-      console.error("Sign up failed", error);
-      toast({
-        title: "Error",
-        position: "top",
-        description: "Sign up failed",
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-      });
-    }
-  };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -169,7 +191,7 @@ export default function Register() {
               </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="teal" mr={3} onClick={verifyAccount}>
+              <Button onClick={verifyAccount} colorScheme="teal" mr={3}>
                 Submit
               </Button>
             </ModalFooter>
@@ -180,103 +202,87 @@ export default function Register() {
         <Flex p={8} flex={1} align={"center"} justify={"center"}>
           <Stack spacing={4} w={"full"} maxW={"md"}>
             <Heading fontSize={"2xl"}>Create a new account</Heading>
-            <Grid templateColumns="repeat(3, 1fr)" gap={6}>
-              <FormControl id="firstname" isRequired>
-                <FormLabel>First Name</FormLabel>
-                <Input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  type="text"
-                />
+            <form onSubmit={handleSubmit}>
+              <Grid templateColumns="repeat(3, 1fr)" gap={6}>
+                <FormControl id="firstname" isRequired>
+                  <FormLabel>First Name</FormLabel>
+                  <Input onChange={handleChange} type="text" name="firstname" />
+                </FormControl>
+                <FormControl id="middelname">
+                  <FormLabel>Middle Name</FormLabel>
+                  <Input
+                    onChange={handleChange}
+                    name="middlename"
+                    type="text"
+                  />
+                </FormControl>
+                <FormControl id="lastname" isRequired>
+                  <FormLabel>Last name</FormLabel>
+                  <Input onChange={handleChange} name="lastname" type="text" />
+                </FormControl>
+              </Grid>
+              <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                <FormControl id="country" isRequired>
+                  <FormLabel>Country</FormLabel>
+                  <Input onChange={handleChange} name="country" type="text" />
+                </FormControl>
+                <FormControl id="state" isRequired>
+                  <FormLabel>State</FormLabel>
+                  <Input onChange={handleChange} name="state" type="text" />
+                </FormControl>
+              </Grid>
+              <FormControl id="email" isRequired>
+                <FormLabel>Email address</FormLabel>
+                <Input onChange={handleChange} name="email" type="email" />
               </FormControl>
-              <FormControl id="middelname" isRequired>
-                <FormLabel>Middle Name</FormLabel>
-                <Input
-                  value={middelName}
-                  onChange={(e) => setMiddelname(e.target.value)}
-                  type="text"
-                />
+              <FormControl id="password" isRequired>
+                <FormLabel>Password</FormLabel>
+                <InputGroup>
+                  <Input
+                    onChange={handleChange}
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                  />
+                  <InputRightElement h={"full"}>
+                    <Button
+                      variant={"ghost"}
+                      onClick={() =>
+                        setShowPassword((showPassword) => !showPassword)
+                      }
+                    >
+                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
               </FormControl>
-              <FormControl id="lastname" isRequired>
-                <FormLabel>Last name</FormLabel>
-                <Input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  type="text"
-                />
-              </FormControl>
-            </Grid>
-            <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-              <FormControl id="country" isRequired>
-                <FormLabel>Country</FormLabel>
-                <Input
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  type="text"
-                />
-              </FormControl>
-              <FormControl id="state" isRequired>
-                <FormLabel>State</FormLabel>
-                <Input
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  type="text"
-                />
-              </FormControl>
-            </Grid>
-            <FormControl id="email" isRequired>
-              <FormLabel>Email address</FormLabel>
-              <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-              />
-            </FormControl>
-            <FormControl id="password" isRequired>
-              <FormLabel>Password</FormLabel>
-              <InputGroup>
-                <Input
-                  value={pass}
-                  onChange={(e) => setPass(e.target.value)}
-                  type={showPassword ? "text" : "password"}
-                />
-                <InputRightElement h={"full"}>
-                  <Button
-                    variant={"ghost"}
-                    onClick={() =>
-                      setShowPassword((showPassword) => !showPassword)
-                    }
-                  >
-                    {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <Stack spacing={6}>
-              <Stack
-                direction={{ base: "column", sm: "row" }}
-                align={"start"}
-                justify={"space-between"}
-              >
-                <Text>
-                  Already a user?{" "}
-                  <ChakraLink
-                    color={"teal.400"}
-                    as={ReactRouterLink}
-                    to="/login"
-                  >
-                    login
-                  </ChakraLink>
-                </Text>
+              <Stack spacing={6}>
+                <Stack
+                  direction={{ base: "column", sm: "row" }}
+                  align={"start"}
+                  justify={"space-between"}
+                >
+                  <Text mt={3}>
+                    Already a user?{" "}
+                    <ChakraLink
+                      color={`${color}.400`}
+                      as={ReactRouterLink}
+                      to={`${link}/login`}
+                    >
+                      login
+                    </ChakraLink>
+                  </Text>
+                </Stack>
+                <Button
+                  isLoading={loading}
+                  loadingText="creating..."
+                  type="submit"
+                  colorScheme={color}
+                  variant={"solid"}
+                >
+                  Sign Up
+                </Button>
               </Stack>
-              <Button
-                onClick={handleRegister}
-                colorScheme={"teal"}
-                variant={"solid"}
-              >
-                Sign Up
-              </Button>
-            </Stack>
+            </form>
           </Stack>
         </Flex>
         <Flex flex={1} mt={5}>
