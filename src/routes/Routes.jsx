@@ -5,7 +5,7 @@ import Hero from "../components/Hero";
 import Admin from "../pages/Admin/Admin";
 import AHome from "../pages/Admin/AHome";
 import ALogin from "../pages/Admin/Auth/ALogin";
-import ARegister from "../pages/Admin/Auth/Aregister";
+import ARegister from "../pages/Admin/Auth/ARegister";
 import CLogin from "../pages/Checker/Auth/CLogin";
 import CRegister from "../pages/Checker/Auth/CRegister";
 import Checker from "../pages/Checker/Checker";
