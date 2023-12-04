@@ -59,6 +59,25 @@ def upload_extracted_data():
     else:
         return jsonify({'message': 'DATA FAILED!'}), 400
 
+@app.route("/get_otp", methods=['POST'])
+def get_otp():
+    data = get_otp_rds(request.json)
+    return jsonify({'data':data,'message': 'retreieveing OTP'}), 200
+
+@app.route("/get_check_in_logs", methods=['POST'])
+def get_check_in_logs():
+    #email, role
+    data = get_check_in_logs_rds(request.json)
+    return jsonify({'data':data,'message': 'retreieveing OTP'}), 200
+
+@app.route("/raise_dispute_user", methods=['POST'])
+def raise_dispute():
+    #input check_in_id,dispute_comments
+    if raise_dispute_rds(request.json):
+        return jsonify({'message': 'DISPUTE RAISED!'}), 200
+    else:
+        return jsonify({'message': 'FAILED TO UPDATE!'}), 400
+
 #list
 @app.route("/extract_user_data", methods=['POST'])
 def extract_user_data():

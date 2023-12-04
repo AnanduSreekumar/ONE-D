@@ -8,7 +8,6 @@ from os import environ
 import json
 
 
-
 s3 = boto3.client(
     "s3",
     aws_access_key_id = AWS_ACCESS_KEY,
@@ -290,7 +289,28 @@ def get_user_details_rds(email):
     else:
         print("ACCESS DENIED!")
         return {}
-    
+
+def get_otp_rds(user_data):
+    email = user_data.get('email')
+    query = "select generated_otp from {0}.{1} where email = '{2}'".format(SCHEMA,TABLE_USER_INFO,email)
+    return get_info_rds(query)
+
+def get_check_in_logs_rds(user_data):
+    if user_data.get('role') != 'admin':
+        one_id = get_one_id(user_data.get('email'))
+        where_condition = "where one_id = {}".format(one_id)
+    else:
+        where_condition =  "where dispute = 'True' order by email,dispute_timestamp desc"    
+    query = "select * from {0}.{1} {2}".format(SCHEMA,TABLE_CHECK_IN_LOGS,where_condition)
+    return get_info_rds(query)
+
+def raise_dispute_rds(user_data):
+    check_in_id = user_data.get('check_in_id')
+    dispute_comments = user_data('dispute_comments')
+    query = ("update {0}.{1} set dispute_comments= '{2}',dispute = 'True',dispute_timestamp = NOW() \
+    where check_in_id = {4}".format(SCHEMA,TABLE_CHECK_IN_LOGS,dispute_comments,check_in_id))
+    return set_upsert_rds(query)
+
 def get_file_stats(email):
     query = """ SELECT 'DELETED' as status, COUNT(1) as count FROM {0}.{1} WHERE status IN ('DELETE','ADMIN-DELETE')
                 UNION ALL
