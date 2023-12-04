@@ -195,6 +195,15 @@ def reset_one_id_otp(user_data):
     notify_user_otp(user_data)
     return set_upsert_rds(query)
 
+def log_entry_one_id_usage(user_data):
+    email_checker_notary = user_data.get('email')
+    role = user_data.get('role','checker')
+    one_id = user_data.get('one_id')  
+    query     = ("INSERT INTO {0}.{1} (check_in_email,role,one_id,dispute,check_in_timestamp)\
+            VALUES ('{2}','{3}','{4}','False', NOW());"
+            .format(SCHEMA,TABLE_CHECK_IN_LOGS,email_checker_notary,role,one_id))
+    return set_upsert_rds(query)
+
 def update_user_status(user_data,status):
     #update_user_status
     email = user_data.get('email',None) 

@@ -24,6 +24,10 @@ def cred_cognito():
     data = cred_cognito_fn()
     return jsonify({ 'data': data,'message': 'credentials requested'}), 200
 
+@app.route("/test_api_connection", methods=['POST'])
+def test_api_connection():
+    return jsonify({ 'data': request.json,'message': 'tetsing in progress!'}), 200
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -79,6 +83,8 @@ def getLoginOneD():
         data = get_user_extracted_data_rds(request.json)
         #reset otp
         reset_one_id_otp(request.json)
+        #log entry for user knowledge
+        log_entry_one_id_usage(request.json)
         return jsonify({'data':data,'message': 'ACCESS GRANTED!'}), 200
     else:
         return jsonify({'message': 'ACCESS DENIED!'}), 403
