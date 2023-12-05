@@ -48,7 +48,18 @@ def run_textract(file_name):
     )
     return json.loads(response['Payload'].read().decode("utf-8"))
 
-
+def get_admin_stats_rds(user_data):
+    data = {}
+    if user_data.get('role') == 'admin':
+        total_users = 2
+        total_disputes = 1
+        total_notary = 3
+        total_checker  = 4
+        data =  {'total_users':total_users,
+            'total_disputes':total_disputes,
+            'total_notary':total_notary,
+            'total_checker':total_checker}
+    return data
 
 def connect_mysql():
     db = pymysql.connect(host = RDS_HOST, user= RDS_USERNAME, password = RDS_PASSWORD, database = RDS_DATABASE)
@@ -132,12 +143,12 @@ def get_user_extracted_data_rds(data):
     #functions to retrieve get_user_extracted_data from  rds
     email = data.get('email',None)
     one_id = data.get('one_id',None)
-    if email is not None:
-        print('searching with email')
-        query = ("select {1}.* from {0}.{1} join {0}.{2} on {1}.one_id = {2}.one_id where  {2}.email = '{3}' ".format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,TABLE_USER_INFO,email)) 
-    else:
+    if one_id is not None:
         print('searching with one_id')
         query = ("select * from {0}.{1} where one_id = {2} ".format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,str(one_id))) 
+    else:
+        print('searching with email')
+        query = ("select {1}.* from {0}.{1} join {0}.{2} on {1}.one_id = {2}.one_id where  {2}.email = '{3}' ".format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,TABLE_USER_INFO,email))
     return get_info_rds(query)
 
 def get_user_status_role_rds(data):
@@ -146,10 +157,10 @@ def get_user_status_role_rds(data):
     one_id = data.get('one_id',None)
     if email is not None:
         print('fetching info with email')
-        query = ("select status,role from {0}.{1} where email = '{2}' ".format(SCHEMA,TABLE_USER_INFO,email)) 
+        query = ("select status,role,country,state from {0}.{1} where email = '{2}' ".format(SCHEMA,TABLE_USER_INFO,email)) 
     else:
         print('fetching info with one_id')
-        query = ("select status,role from {0}.{1} where one_id = {2}".format(SCHEMA,TABLE_USER_INFO,str(one_id))) 
+        query = ("select status,role,country,state from {0}.{1} where one_id = {2}".format(SCHEMA,TABLE_USER_INFO,str(one_id))) 
     return get_info_rds(query)
 
 def confirm_user_one_id(user_data):
@@ -169,7 +180,7 @@ def set_user_account(user_data):
     lastname  = user_data.get('lastname')
     country  = user_data.get('country')
     state  = user_data.get('state')
-    role = user_data.get('role','user')
+    role = user_data.get('role','user').lower()
     email     = user_data.get('email').lower()
     otp = generate_otp()
     query     = ("INSERT INTO {0}.{1} (firstname,middlename,lastname,email,role,country,state,generated_otp,status,last_updated_timestamp ,profile_created_date)\
@@ -207,10 +218,10 @@ def update_user_status(user_data,status):
     #update_user_status
     email = user_data.get('email',None) 
     one_id = user_data.get('one_id',None)
-    if email is not None:
-        where_condition = " email = '{}'".format(email)
-    else:
+    if one_id is not None:
         where_condition = " one_id = {}".format(one_id)
+    else:
+        where_condition = " email = '{}'".format(email)
     query = ("update {0}.{1} set status = '{2}', last_updated_timestamp = NOW() where {3}".format(SCHEMA,TABLE_USER_INFO,status,where_condition))
     return set_upsert_rds(query)
 

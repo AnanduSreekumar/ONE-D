@@ -115,6 +115,13 @@ def get_notary_service():
     result_json = { 'data': data}
     return jsonify(result_json),200
 
+@app.route("/get_admin_stats", methods=['POST'])
+def get_admin_stats():
+    #get notary address
+    data = get_admin_stats_rds(request.json)
+    result_json = { 'data': data}
+    return jsonify(result_json),200
+
 @app.route("/set_verification", methods=['POST'])
 def set_user_verification():
     #get user account verification
