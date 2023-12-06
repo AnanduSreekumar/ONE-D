@@ -41,7 +41,6 @@ def upload_file():
             one_id = get_one_id(email)
             file_name = secure_filename(str(one_id)+'_'+request.form.get('doc_type')+'.'+file.filename.rsplit('.', 1)[1].lower())
             data = run_textract(file_name)
-            #data = {}
             update_user_status(request.form,'upload')
         # process your description here
             return jsonify({'data':data,'message': 'File uploaded to S3'}), 200

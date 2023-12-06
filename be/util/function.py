@@ -51,14 +51,19 @@ def run_textract(file_name):
 def get_admin_stats_rds(user_data):
     data = {}
     if user_data.get('role') == 'admin':
-        total_users = 2
-        total_disputes = 1
-        total_notary = 3
-        total_checker  = 4
-        data =  {'total_users':total_users,
-            'total_disputes':total_disputes,
-            'total_notary':total_notary,
-            'total_checker':total_checker}
+        query = """ SELECT 'USERS' as role, COUNT(1) as count FROM {0}.{1} WHERE role = 'user' 
+                UNION ALL
+                SELECT 'DISPUTES', COUNT(1) FROM {0}.{2} WHERE dispute = True
+                UNION ALL
+                SELECT 'NOTARY', COUNT(1) FROM {0}.{1} WHERE role = 'notary' 
+                UNION ALL
+                SELECT 'CHECKER', COUNT(1) FROM {0}.{1} WHERE role = 'checker';""".format(SCHEMA,TABLE_USER_INFO,TABLE_CHECK_IN_LOGS)
+        data = get_info_rds(query)
+        print(data)
+        data =  {'total_users':data[0][1],
+                'total_disputes':data[1][1],
+                'total_notary':data[2][1],
+                'total_checker':data[3][1]}
     return data
 
 def connect_mysql():
@@ -102,7 +107,7 @@ def get_info_rds(query):
     return data
 
 def get_one_id(email):
-    query = ("select one_id from {0}.{1} where email = '{2}' and status in ('created','upload') ".format(SCHEMA,TABLE_USER_INFO,email))
+    query = ("select one_id from {0}.{1} where email = '{2}' ".format(SCHEMA,TABLE_USER_INFO,email))
     return get_info_rds(query)[0][0]
 
 def save_file_name_to_rds(file_data):
@@ -311,7 +316,7 @@ def get_check_in_logs_rds(user_data):
         one_id = get_one_id(user_data.get('email'))
         where_condition = "where one_id = {}".format(one_id)
     else:
-        where_condition =  "where dispute = 'True' order by email,dispute_timestamp desc"    
+        where_condition =  "where dispute = True order by check_in_email,dispute_timestamp desc"    
     query = "select * from {0}.{1} {2}".format(SCHEMA,TABLE_CHECK_IN_LOGS,where_condition)
     return get_info_rds(query)
 
