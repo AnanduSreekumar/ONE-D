@@ -1,7 +1,8 @@
-import { Box, Text, Image, Badge, Flex } from "@chakra-ui/react";
+import { Badge, Box, Flex, Image, Text } from "@chakra-ui/react";
 import ReactCountryFlag from "react-country-flag";
 
-const Card_id = ({ user }) => {
+const Card_id = ({ data }) => {
+  console.log(data);
   return (
     <Box
       m={10}
@@ -19,7 +20,7 @@ const Card_id = ({ user }) => {
       color={"#FDEDCE"}
     >
       <Badge fontSize={"xl"} colorScheme="black" mb={2}>
-        1234567
+        {data[1]}
       </Badge>
       <Flex justifyContent={"space-between"} alignItems={"center"}>
         <Image
@@ -27,21 +28,21 @@ const Card_id = ({ user }) => {
           width={"100px"}
           objectFit={"cover"}
           borderRadius={"500px"}
-          src="https://www.catholicsingles.com/wp-content/uploads/2020/06/blog-header-3.png"
+          src="https://media.licdn.com/dms/image/D5635AQGUTZEXZFYNxg/profile-framedphoto-shrink_800_800/0/1698697437052?e=1702000800&v=beta&t=CYwukOX7aWw8Z5OSflgwIgFA4XupuBAQr325D8OlYjI"
           alt="name"
         />
         <Flex mx={"5"} justifyContent={"space-between"} direction={"column"}>
           <Text fontWeight="bold" fontSize="lg">
-            Name: Jeswanth
+            Name: {data[2]} {data[3]}
           </Text>
           <Text fontWeight="normal" fontSize="lg">
-            Gender: Male
+            Gender: {data[4]}
           </Text>
           <Text fontWeight="normal" fontSize="lg">
-            DOB: 1/1/2001
+            Age: {data[6]}
           </Text>
           <Text fontWeight="normal" fontSize="lg">
-            Expiry: 1/2023
+            Expiry: {data[14]}
           </Text>
         </Flex>
         <Flex
@@ -72,9 +73,9 @@ const Card_id = ({ user }) => {
         <Text fontWeight="bold" fontSize="lg">
           Address
         </Text>
-        <Text>1895, N Capitol Ave, San jose, CA - 950132</Text>
+        <Text>{data[5]} </Text>
         <Badge colorScheme="green" mt={2}>
-          Driving
+          Passport
         </Badge>
       </Box>
     </Box>

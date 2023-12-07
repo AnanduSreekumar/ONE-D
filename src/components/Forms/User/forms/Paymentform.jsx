@@ -1,11 +1,13 @@
 import {
   Box,
-  Button,
+  Button as ChakraLink,
   Flex,
   FormControl,
   FormLabel,
   Input,
 } from "@chakra-ui/react";
+import { Link as ReactRouterLink } from "react-router-dom";
+
 import React, { useState } from "react";
 import Cards from "react-credit-cards-2";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
@@ -76,7 +78,7 @@ const PaymentForm = () => {
             <FormLabel>Expiry</FormLabel>
             <Input
               type="number"
-              placeholder="Card Number"
+              placeholder="Expiry"
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
               onFocus={() => setFocus("expiry")}
@@ -95,16 +97,15 @@ const PaymentForm = () => {
         </Flex>
       </form>
       <Box p={4}>
-        <Button
-          // isLoading={loading}
-          // loadingText="Uploading"
-          // onClick={handleSubmit}
+        <ChakraLink
           colorScheme="green"
           variant="outline"
           w={"full"}
+          as={ReactRouterLink}
+          to="/dashboard"
         >
           Make payment
-        </Button>
+        </ChakraLink>
       </Box>
     </div>
   );

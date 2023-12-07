@@ -22,9 +22,25 @@ export const authenticate = (Email, Password) => {
     });
   });
 };
-
-export const logout = () => {
-  const user = userpool.getCurrentUser();
-  user.signout();
-  window.location.href = "/";
-};
+// export const register = (Email, Password) => {
+//   return new Promise((resolve, reject) => {
+//     const user = new CognitoUser({
+//       Username: Email,
+//       Pool: userpool,
+//     });
+//     const authDetails = new AuthenticationDetails({
+//       Username: Email,
+//       Password,
+//     });
+//     user.authenticateUser(authDetails, {
+//       onSuccess: (result) => {
+//         console.log("login done");
+//         resolve(result);
+//       },
+//       onFailure: (err) => {
+//         console.log("login failed", err);
+//         reject(err);
+//       },
+//     });
+//   });
+// };

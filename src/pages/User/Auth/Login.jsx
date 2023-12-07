@@ -1,30 +1,26 @@
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Button,
+  Link as ChakraLink,
   Flex,
-  Text,
   FormControl,
   FormLabel,
   Heading,
-  Input,
-  Stack,
   Image,
-  Link as ChakraLink,
-  useToast,
+  Input,
   InputGroup,
   InputRightElement,
+  Stack,
+  Text,
+  useToast,
 } from "@chakra-ui/react";
-import Loginsvg from "../../assets/login.svg";
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { login } from "../../utils/apiService";
-import { Link as ReactRouterLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
-import userpool from "../../utils/userpool";
-import { authenticate } from "../../utils/authenticate";
+import { useState } from "react";
+import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
+import Loginsvg from "../../../assets/login.svg";
+import { authenticate } from "../../../utils/cognito";
 
-export default function Login() {
+export default function Login({ link = "", color = "teal", image = Loginsvg }) {
   const toast = useToast();
   let navigate = useNavigate();
 
@@ -34,51 +30,34 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      authenticate(email, pass)
-        .then(
-          (data) => {
-            console.log(data);
-            toast({
-              title: "Successfully logged in",
-              position: "top",
-              status: "success",
-              duration: 9000,
-              isClosable: true,
-            });
-            localStorage.setItem("email", email);
-            return navigate("/create");
-          },
-          (err) => {
-            console.log(err);
-            toast({
-              title: "Error",
-              position: "top",
-              description: "Please type in valid credentials",
-              status: "error",
-              duration: 9000,
-              isClosable: true,
-            });
-          }
-        )
-        .catch((err) => console.log(err));
 
-      if (email === "jeswanthv01@gmail.com") {
+    authenticate(email, pass).then(
+      (data) => {
+        toast({
+          title: "Successfully logged in",
+          position: "top",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+
         localStorage.setItem("email", email);
-        return navigate("/admin");
+        if (link === "") return navigate("/create");
+        if (link === "/notary") return navigate("/notary");
+        if (link === "/checker") return navigate("/checker");
+        if (link === "/admin") return navigate("/admin");
+      },
+      (err) => {
+        toast({
+          title: "Error",
+          position: "top",
+          description: "Please type in valid credentials",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
       }
-      // return navigate("/create");
-    } catch (error) {
-      console.error("Login failed", error);
-      toast({
-        title: "Error",
-        position: "top",
-        description: "Invalid Credentials",
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-      });
-    }
+    );
   };
   return (
     <motion.div
@@ -129,9 +108,9 @@ export default function Login() {
                 <Text>
                   New user?{" "}
                   <ChakraLink
-                    color={"teal.400"}
+                    color={`${color}.400`}
                     as={ReactRouterLink}
-                    to="/register"
+                    to={`${link}/register`}
                   >
                     register
                   </ChakraLink>
@@ -139,7 +118,7 @@ export default function Login() {
               </Stack>
               <Button
                 onClick={handleLogin}
-                colorScheme={"teal"}
+                colorScheme={color}
                 variant={"solid"}
               >
                 Sign in
@@ -148,7 +127,7 @@ export default function Login() {
           </Stack>
         </Flex>
         <Flex flex={1} mt={5}>
-          <Image boxSize="80vh" alt={"Login Image"} src={Loginsvg} />
+          <Image boxSize="80vh" alt={"Login Image"} src={image} />
         </Flex>
       </Stack>
     </motion.div>
