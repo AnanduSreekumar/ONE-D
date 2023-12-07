@@ -22,11 +22,19 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ExternalLinkIcon,
+  HamburgerIcon,
+  MoonIcon,
+  SunIcon,
+} from "@chakra-ui/icons";
+import { Link } from "react-router-dom";
+
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar() {
+export default function Navbar({ color = "teal", type = "ONE-D" }) {
   let navigate = useNavigate();
 
   const user = localStorage.getItem("email");
@@ -41,7 +49,7 @@ export default function Navbar() {
   };
   return (
     <>
-      <Box bg={"teal"} px={4}>
+      <Box bg={color} px={4}>
         <Flex
           style={{ maxWidth: "1300px", margin: "auto" }}
           h={16}
@@ -49,13 +57,39 @@ export default function Navbar() {
           justifyContent={"space-between"}
         >
           <Box color={"gray.100"}>
-            <Text fontSize="2xl">ONE-D</Text>
+            <Text fontSize="2xl">{type}</Text>
           </Box>
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <IconButton onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </IconButton>
+              {!user && (
+                <>
+                  <Menu>
+                    <MenuButton
+                      as={IconButton}
+                      aria-label="Options"
+                      icon={<HamburgerIcon />}
+                      variant="outline"
+                    />
+                    <MenuList>
+                      <Link to="/login">
+                        <MenuItem>User</MenuItem>
+                      </Link>
+                      <Link to="/notary/login">
+                        <MenuItem>Notary</MenuItem>
+                      </Link>
+                      <Link to="/admin/login">
+                        <MenuItem>Admin</MenuItem>
+                      </Link>
+                      <Link to="/checker/login">
+                        <MenuItem>Checker</MenuItem>
+                      </Link>
+                    </MenuList>
+                  </Menu>
+                </>
+              )}
               {user && (
                 <Menu>
                   <MenuButton

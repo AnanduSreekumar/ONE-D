@@ -2,14 +2,14 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 
-const Notary = () => {
+const Checker = () => {
   return (
     <>
-      <Navbar color="gray.600" type="Notary" />
+      <Navbar color="pink.600" type="Checker" />
 
       <Outlet />
     </>
   );
 };
 
-export default Notary;
+export default Checker;
