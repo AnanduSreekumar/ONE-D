@@ -53,7 +53,12 @@ const Create = () => {
       if (stat === "payment") {
         setActiveStep(3);
         setLoading(false);
-      } else {
+      }
+      if (stat === "verified") {
+        navigate("/dashboard");
+        setLoading(false);
+      }
+      if (stat === "not_verified") {
         navigate("/dashboard");
         setLoading(false);
       }
