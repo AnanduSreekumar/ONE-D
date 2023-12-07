@@ -121,6 +121,13 @@ def get_admin_stats():
     result_json = { 'data': data}
     return jsonify(result_json),200
 
+@app.route("/get_verification_info", methods=['POST'])
+def get_verification_info():
+    #get notary address
+    data = get_verification_info_rds(request.json)
+    result_json = { 'data': data}
+    return jsonify(result_json),200
+
 @app.route("/set_verification", methods=['POST'])
 def set_user_verification():
     #get user account verification
@@ -198,6 +205,7 @@ def modify_file():
 @app.route("/")
 def test():
     return "<h1>Test one-d connection successful</h1>"
+
 
 if __name__ == "__main__":
     print('Starting one-d server!')

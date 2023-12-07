@@ -137,11 +137,18 @@ def set_textract_data(data):
     driving_license = data.get('driving_license','NA')
     occupation = data.get('occupation','NA')
     blood_type = data.get('blood_type','NA')
-    document_expiry_date = data.get('document_expiry_date','1/1/1996')
-    query = ("INSERT INTO {0}.{1} (one_id, firstname,middlename,lastname,age,sex,address,country,county,state,pincode,driving_license,blood_type,occupation, document_expiry_date ,last_updated_timestamp) \
+    document_expiry_date = str(data.get('document_expiry_date','1996-01-01'))
+    doc_number = data.get('doc_number')
+    doc_type = data.get('doc_type')
+    text_json = data.get('text')
+    query_in = ("INSERT INTO {0}.{1} (one_id, firstname,middlename,lastname,age,sex,address,country,county,state,pincode,driving_license,blood_type,occupation, document_expiry_date ,last_updated_timestamp) \
             VALUES ({2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}','{10}','{11}','{12}','{13}','{14}','{15}','{16}',NOW());"
              .format(SCHEMA,TABLE_TEXT_EXTRACT_INFO,one_id, firstname,middlename,lastname,age,sex,address,country,county,state,pincode,driving_license,blood_type,occupation, document_expiry_date))
-    return set_upsert_rds(query)
+    data_response = set_upsert_rds(query_in)
+    if data_response:
+        query_up = ("""update {0}.{1} set doc_number = '{3}' where one_id = {2} and doc_type = '{4}'""".format(SCHEMA,TABLE_DOC_INFO,one_id,doc_number,doc_type))
+        data_response = set_upsert_rds(query_up)
+    return data_response
 
 
 def get_user_extracted_data_rds(data):
@@ -192,6 +199,11 @@ def set_user_account(user_data):
             VALUES ('{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','created', NOW(), NOW());"
              .format(SCHEMA,TABLE_USER_INFO,firstname,middlename,lastname,email,role,country,state,otp))
     return set_upsert_rds(query)
+
+def get_verification_info_rds(user_data):
+    one_id = get_one_id(user_data.get('email'))
+    query = ("select * from {0}.{1} where one_id = {2}".format(SCHEMA,TABLE_VERIFICATION_INFO,one_id))
+    return get_info_rds(query)
 
 def notify_user_otp(user_data):
     #pending
@@ -308,7 +320,7 @@ def get_user_details_rds(email):
 
 def get_otp_rds(user_data):
     email = user_data.get('email')
-    query = "select generated_otp from {0}.{1} where email = '{2}'".format(SCHEMA,TABLE_USER_INFO,email)
+    query = "select one_id,generated_otp from {0}.{1} where email = '{2}'".format(SCHEMA,TABLE_USER_INFO,email)
     return get_info_rds(query)
 
 def get_check_in_logs_rds(user_data):
@@ -322,9 +334,9 @@ def get_check_in_logs_rds(user_data):
 
 def raise_dispute_rds(user_data):
     check_in_id = user_data.get('check_in_id')
-    dispute_comments = user_data('dispute_comments')
-    query = ("update {0}.{1} set dispute_comments= '{2}',dispute = 'True',dispute_timestamp = NOW() \
-    where check_in_id = {4}".format(SCHEMA,TABLE_CHECK_IN_LOGS,dispute_comments,check_in_id))
+    dispute_comments = user_data.get('dispute_comments')
+    query = ("update {0}.{1} set dispute_comments= '{2}',dispute = True,dispute_timestamp = NOW() \
+    where check_in_id = {3}".format(SCHEMA,TABLE_CHECK_IN_LOGS,dispute_comments,check_in_id))
     return set_upsert_rds(query)
 
 def get_file_stats(email):
