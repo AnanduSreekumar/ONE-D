@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -10,42 +9,37 @@ import {
   Select,
   Stack,
 } from "@chakra-ui/react";
-import axios from "axios";
+import React, { useState } from "react";
+import { getNotaryService } from "../../../../utils/apiService";
 
 function FinalForm({ step, setActiveStep }) {
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
+  const [form, setForm] = useState({
+    country: "",
+    state: "",
+    pincode: "",
+    notary: "",
+  });
   const [pincode, setPincode] = useState("");
-  const [notary, setNotary] = useState("");
-  const [values, setvalues] = useState([]);
+  const [values, setValues] = useState([]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleNotary = () => {
-    axios
-      .post(
-        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/get_notary_service",
-        {
-          country: "United States",
-          state: "California",
-          pincode: "950132",
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = getNotaryService(form);
+    res
       .then((response) => {
-        console.log(response);
-        if (response.status === 200) {
-          // window.location.reload();
-          // window.location = "/files";
-          console.log(response);
-          setvalues(response.data.data);
-        }
+        console.log(response.data.data);
+        setValues(response.data.data);
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleSubmit = (e) => {
+    console.log(form);
   };
 
   return (
@@ -58,27 +52,15 @@ function FinalForm({ step, setActiveStep }) {
       <Flex mt={3}>
         <FormControl isRequired p={2}>
           <FormLabel>Country</FormLabel>
-          <Input
-            placeholder="Country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-          />
+          <Input onChange={handleChange} type="text" name="country" />
         </FormControl>
         <FormControl isRequired p={2}>
           <FormLabel>State</FormLabel>
-          <Input
-            placeholder="State"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-          />
+          <Input onChange={handleChange} type="text" name="state" />
         </FormControl>
         <FormControl isRequired p={2}>
           <FormLabel>Pincode</FormLabel>
-          <Input
-            placeholder="Pincode"
-            value={pincode}
-            onChange={(e) => setPincode(e.target.value)}
-          />
+          <Input onChange={handleChange} type="number" name="pincode" />
         </FormControl>
       </Flex>
       <Flex>
@@ -87,20 +69,15 @@ function FinalForm({ step, setActiveStep }) {
         </Button>
       </Flex>
       <Flex>
-        <FormControl
-          isDisabled={pincode === "" ? true : false}
-          isRequired
-          p={2}
-        >
+        <FormControl isRequired p={2}>
           <FormLabel>Notary Service</FormLabel>
-          <Select
-            placeholder="Select Notary Service"
-            value={notary}
-            onChange={(e) => setNotary(e.target.value)}
-          >
+          <Select onChange={handleChange} type="text" name="notary">
             <>
-              <option value="UPS">Jeswanth-UPS</option>
-              <option value="UPS">Sai-UPS</option>
+              {values.map((value, key) => (
+                <option key={key} value={value[0]}>
+                  {value[0]} - {value[2]}
+                </option>
+              ))}
             </>
           </Select>
         </FormControl>
@@ -110,6 +87,7 @@ function FinalForm({ step, setActiveStep }) {
         <Button
           mx={2}
           w={"full"}
+          isDisabled={values.length === 0}
           bgGradient="linear(to-r, red.500, yellow.500)"
           _hover={{
             bgGradient: "linear(to-r, red.600, yellow.600)",
@@ -121,26 +99,6 @@ function FinalForm({ step, setActiveStep }) {
           Next
         </Button>
       </Flex>
-
-      {/* <FormControl isRequired p={2}>
-        <FormLabel>Mode</FormLabel>
-        <Flex justifyContent={"space-between"}>
-          <Button mx={2} w={"full"} size="lg">
-            Normal
-          </Button>
-          <Button
-            mx={2}
-            w={"full"}
-            bgGradient="linear(to-r, red.500, yellow.500)"
-            _hover={{
-              bgGradient: "linear(to-r, red.600, yellow.600)",
-            }}
-            size="lg"
-          >
-            Express
-          </Button>
-        </Flex>
-      </FormControl> */}
     </Box>
   );
 }

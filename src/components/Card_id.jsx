@@ -1,7 +1,8 @@
-import { Box, Text, Image, Badge, Flex } from "@chakra-ui/react";
+import { Badge, Box, Flex, Image, Text } from "@chakra-ui/react";
 import ReactCountryFlag from "react-country-flag";
 
-const Card_id = ({ user }) => {
+const Card_id = ({ data }) => {
+  console.log(data);
   return (
     <Box
       m={10}
@@ -19,7 +20,7 @@ const Card_id = ({ user }) => {
       color={"#FDEDCE"}
     >
       <Badge fontSize={"xl"} colorScheme="black" mb={2}>
-        10
+        {data[1]}
       </Badge>
       <Flex justifyContent={"space-between"} alignItems={"center"}>
         <Image
@@ -32,16 +33,16 @@ const Card_id = ({ user }) => {
         />
         <Flex mx={"5"} justifyContent={"space-between"} direction={"column"}>
           <Text fontWeight="bold" fontSize="lg">
-            Name: Anandu Sreekumar
+            Name: {data[2]} {data[3]}
           </Text>
           <Text fontWeight="normal" fontSize="lg">
-            Gender: Male
+            Gender: {data[4]}
           </Text>
           <Text fontWeight="normal" fontSize="lg">
-            DOB: 07/04/1996
+            Age: {data[6]}
           </Text>
           <Text fontWeight="normal" fontSize="lg">
-            Expiry: 02/07/2027
+            Expiry: {data[14]}
           </Text>
         </Flex>
         <Flex
@@ -72,7 +73,7 @@ const Card_id = ({ user }) => {
         <Text fontWeight="bold" fontSize="lg">
           Address
         </Text>
-        <Text>Reji bhavan, olayil, thevally p o, kollam, Kerala, India </Text>
+        <Text>{data[5]} </Text>
         <Badge colorScheme="green" mt={2}>
           Passport
         </Badge>

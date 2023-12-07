@@ -4,16 +4,9 @@ import Card_id from "../../components/Card_id";
 import OTPForm from "../../components/Forms/Checker/OTPForm";
 
 const CHome = () => {
-  const [data, setData] = useState({
-    firstname: "Jeswanth",
-    lastname: "Vadlamudi",
-    country: "India",
-    state: "TN",
-    Dob: "10/10/2001",
-    expiry: "10/2001",
-    sign: "",
-    disputetext: "",
-  });
+  const [data, setData] = useState(null);
+  const email = localStorage.getItem("email");
+  const role = "checker";
   return (
     <>
       {data ? (
@@ -24,10 +17,10 @@ const CHome = () => {
           maxW={"1000px"}
           my={10}
         >
-          <Card_id />
+          <Card_id data={data} />
         </Flex>
       ) : (
-        <OTPForm setData={setData} />
+        <OTPForm setData={setData} email={email} role={role} />
       )}
       {console.log(data)}
     </>

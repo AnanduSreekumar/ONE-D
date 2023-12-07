@@ -1,27 +1,26 @@
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Button,
+  Link as ChakraLink,
   Flex,
-  Text,
   FormControl,
   FormLabel,
   Heading,
-  Input,
-  Stack,
   Image,
-  Link as ChakraLink,
-  useToast,
+  Input,
   InputGroup,
   InputRightElement,
+  Stack,
+  Text,
+  useToast,
 } from "@chakra-ui/react";
-import Loginsvg from "../../../assets/login.svg";
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link as ReactRouterLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useState } from "react";
+import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
+import Loginsvg from "../../../assets/login.svg";
 import { authenticate } from "../../../utils/cognito";
 
-export default function Login({ link = "", color = "teal" }) {
+export default function Login({ link = "", color = "teal", image = Loginsvg }) {
   const toast = useToast();
   let navigate = useNavigate();
 
@@ -45,6 +44,8 @@ export default function Login({ link = "", color = "teal" }) {
         localStorage.setItem("email", email);
         if (link === "") return navigate("/create");
         if (link === "/notary") return navigate("/notary");
+        if (link === "/checker") return navigate("/checker");
+        if (link === "/admin") return navigate("/admin");
       },
       (err) => {
         toast({
@@ -126,7 +127,7 @@ export default function Login({ link = "", color = "teal" }) {
           </Stack>
         </Flex>
         <Flex flex={1} mt={5}>
-          <Image boxSize="80vh" alt={"Login Image"} src={Loginsvg} />
+          <Image boxSize="80vh" alt={"Login Image"} src={image} />
         </Flex>
       </Stack>
     </motion.div>

@@ -1,11 +1,10 @@
 import {
   Box,
-  Button,
+  Button as ChakraLink,
   Flex,
   FormControl,
   FormLabel,
   Input,
-  Button as ChakraLink,
 } from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 
@@ -79,7 +78,7 @@ const PaymentForm = () => {
             <FormLabel>Expiry</FormLabel>
             <Input
               type="number"
-              placeholder="Card Number"
+              placeholder="Expiry"
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
               onFocus={() => setFocus("expiry")}

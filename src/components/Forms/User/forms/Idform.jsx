@@ -1,35 +1,30 @@
+import { SmallCloseIcon } from "@chakra-ui/icons";
 import {
+  Avatar,
+  AvatarBadge,
+  Box,
   Button,
+  Center,
+  CloseButton,
   Flex,
   FormControl,
   FormLabel,
   Heading,
-  Input,
-  Stack,
-  Avatar,
-  AvatarBadge,
   IconButton,
-  Center,
-  Select,
-  useColorMode,
-  Box,
-  SlideFade,
-  CloseButton,
   Image,
+  Input,
+  SlideFade,
+  Stack,
+  useColorMode,
   useToast,
 } from "@chakra-ui/react";
-import {
-  AddIcon,
-  ArrowUpIcon,
-  SmallCloseIcon,
-  TriangleUpIcon,
-} from "@chakra-ui/icons";
-import { useEffect, useState } from "react";
-import IdType from "../../../../components/IdType";
 import axios from "axios";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import IdType from "../../../../components/IdType";
+import { uploadFile } from "../../../../utils/apiService";
 
-export default function Idform({ step, setActiveStep }) {
+export default function Idform({ step, setActiveStep, setTextData }) {
   const toast = useToast();
 
   const [preview, setPreview] = useState(null);
@@ -96,11 +91,6 @@ export default function Idform({ step, setActiveStep }) {
   };
   const [inputList, setInputList] = useState([<IdType />]);
 
-  // const onAddBtnClick = (event) => {
-  //   const newInput = Date.now();
-  //   setInputList((v) => [...v, newInput]);
-  // };
-
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
     return () => files.forEach((file) => URL.revokeObjectURL(file.preview));
@@ -153,48 +143,22 @@ export default function Idform({ step, setActiveStep }) {
     formData.append("doc_state", state);
     formData.append("email", user);
     try {
-      axios
-        .post(
-          "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app//upload",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-          if (response.status === 200) {
-            // window.location.reload();
-            // window.location = "/files";
-            console.log(response);
-            setActiveStep(step + 1);
-            setLoading(false);
-            toast({
-              title: "File Uploaded",
-              position: "top",
-              status: "success",
-              duration: 9000,
-              isClosable: true,
-            });
-          }
-        })
-        .catch(function (error) {
-          if (error.response) {
-            console.log(error.response);
-            toast({
-              title: "Upload Failed",
-              position: "top",
-              status: "error",
-              duration: 9000,
-              isClosable: true,
-            });
-            setLoading(false);
-          }
+      const res = uploadFile(formData);
+      res.then((data) => {
+        console.log("IDFORM", data);
+        localStorage.setItem("textData", JSON.stringify(data));
+        localStorage.setItem("country", country);
+        setActiveStep(step + 1);
+        setLoading(false);
+        toast({
+          title: "File Uploaded",
+          position: "top",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
         });
+      });
     } catch {
-      // setShow(true);
       setLoading(false);
     }
   };

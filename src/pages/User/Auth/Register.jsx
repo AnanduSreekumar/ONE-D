@@ -22,7 +22,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { CognitoUser } from "amazon-cognito-identity-js";
+import { CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Link as ReactRouterLink, useNavigate } from "react-router-dom";
@@ -30,7 +30,12 @@ import Welcomesvg from "../../../assets/welcome.svg";
 import { register } from "../../../utils/apiService";
 import userpool from "../../../utils/userpool";
 
-export default function Register({ role = "user", link = "", color = "teal" }) {
+export default function Register({
+  role = "user",
+  link = "",
+  color = "teal",
+  image = Welcomesvg,
+}) {
   const toast = useToast();
   let navigate = useNavigate();
 
@@ -57,63 +62,45 @@ export default function Register({ role = "user", link = "", color = "teal" }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    register(form)
-      .then((res) => {
-        toast({
-          title: "Account Created successfully",
-          position: "top",
-          status: "success",
-          duration: 9000,
-          isClosable: true,
-        });
-      })
-      .catch((err) => {
-        toast({
-          title: "Something went wrong",
-          position: "top",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      });
 
-    // const attributeList = [];
-    // attributeList.push(
-    //   new CognitoUserAttribute({
-    //     Name: "email",
-    //     Value: email,
-    //   })
-    // );
-    // let username = form.email;
-    // userpool.signUp(
-    //   username,
-    //   form.password,
-    //   attributeList,
-    //   null,
-    //   (err, data) => {
-    //     if (err) {
-    //       toast({
-    //         title: "Password Error",
-    //         position: "top",
-    //         description: err.message,
-    //         status: "error",
-    //         duration: 9000,
-    //         isClosable: true,
-    //       });
-    //       setLoading(false);
-    //     } else {
-    //       console.log(data);
-    //       toast({
-    //         title: "Otp sent",
-    //         position: "top",
-    //         status: "success",
-    //         duration: 9000,
-    //         isClosable: true,
-    //       });
-    //       setVerifyProcess(true);
-    //     }
-    //   }
-    // );
+    const attributeList = [];
+    console.log(form.email);
+    attributeList.push(
+      new CognitoUserAttribute({
+        Name: "email",
+        Value: form.email,
+      })
+    );
+    let username = form.email;
+    userpool.signUp(
+      username,
+      form.password,
+      attributeList,
+      null,
+      (err, data) => {
+        if (err) {
+          toast({
+            title: "Password Error",
+            position: "top",
+            description: err.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+          setLoading(false);
+        } else {
+          console.log(data);
+          toast({
+            title: "Otp sent",
+            position: "top",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+          setVerifyProcess(true);
+        }
+      }
+    );
   };
 
   const verifyAccount = (e) => {
@@ -286,7 +273,7 @@ export default function Register({ role = "user", link = "", color = "teal" }) {
           </Stack>
         </Flex>
         <Flex flex={1} mt={5}>
-          <Image boxSize="80vh" alt={"Login Image"} src={Welcomesvg} />
+          <Image boxSize="80vh" alt={"Login Image"} src={image} />
         </Flex>
       </Stack>
     </motion.div>

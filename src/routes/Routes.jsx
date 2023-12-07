@@ -18,6 +18,8 @@ import Notary from "../pages/Notary/Notary";
 import Login from "../pages/User/Auth/Login";
 import Register from "../pages/User/Auth/Register";
 import Create from "../pages/User/Create/Create";
+import Dashboard from "../pages/User/Create/Dashboard";
+import UserLogs from "../pages/User/UserLogs";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,14 @@ const router = createBrowserRouter([
           {
             path: "/",
             element: <Hero />,
+          },
+          {
+            path: "/dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "/logs",
+            element: <UserLogs />,
           },
           {
             path: "/login",

@@ -1,21 +1,22 @@
 import {
-  Button,
   Card,
   CardBody,
+  Flex,
   Grid,
   GridItem,
-  Stack,
+  Spinner,
   useSteps,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import EditForm from "../../../components/Forms/User/forms/Editform";
-import FinalForm from "../../../components/Forms/User/forms/Finalform";
+import EditForm from "../../../components/Forms/User/forms/EditForm";
+import FinalForm from "../../../components/Forms/User/forms/FinalForm";
 import Idform from "../../../components/Forms/User/forms/Idform";
-import PaymentForm from "../../../components/Forms/User/forms/Paymentform";
+import PaymentForm from "../../../components/Forms/User/forms/PaymentForm";
+import { getUserStatus } from "../../../utils/apiService";
 import StepperForm from "./StepperForm";
+
 const steps = [
   { title: "First", description: "ID Info" },
   { title: "Second", description: "Edit Info" },
@@ -25,48 +26,38 @@ const steps = [
 
 const Create = () => {
   const navigate = useNavigate();
-  let formData = new FormData();
   let user = localStorage.getItem("email");
-  formData.append("email", user);
-  const [status, setstatus] = useState("");
+  const [textData, setTextData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { activeStep, setActiveStep } = useSteps({
     index: 0,
     count: steps.length,
   });
   useEffect(() => {
-    axios
-      .post(
-        "https://22e9-2601-646-a080-7c60-50bd-2cd8-1841-9296.ngrok-free.app/login",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        console.log(response);
-        if (response.status === 200) {
-          // window.location.reload();
-          // window.location = "/files";
-          console.log(response);
-          setstatus(response.data.data[0][0]);
-          console.log(status);
-          if (status === "created") {
-            setActiveStep(0);
-          }
-          if (status === "upload") {
-            setActiveStep(1);
-          }
-          if (status === "data_updated") {
-            setActiveStep(2);
-          }
-          return navigate("/dashboard");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const res = getUserStatus(user);
+    res.then((data) => {
+      console.log(data);
+      const stat = data?.data[0][0];
+      if (stat === "created") {
+        setActiveStep(0);
+        setLoading(false);
+      }
+      if (stat === "upload") {
+        setActiveStep(1);
+        setLoading(false);
+      }
+      if (stat === "data_updated") {
+        setActiveStep(2);
+        setLoading(false);
+      }
+      if (stat === "payment") {
+        setActiveStep(3);
+        setLoading(false);
+      } else {
+        navigate("/dashboard");
+        setLoading(false);
+      }
+    });
   }, []);
   useEffect(() => {
     const user = localStorage.getItem("email");
@@ -95,23 +86,52 @@ const Create = () => {
           <GridItem marginLeft={"5rem"} colSpan={3}>
             <Card>
               <CardBody>
-                {activeStep == 0 && (
-                  <Idform step={activeStep} setActiveStep={setActiveStep} />
-                )}
-                {activeStep == 1 && (
-                  <EditForm step={activeStep} setActiveStep={setActiveStep} />
-                )}
-                {activeStep == 2 && (
-                  <FinalForm step={activeStep} setActiveStep={setActiveStep} />
-                )}
-                {activeStep == 3 && (
-                  <PaymentForm
-                    step={activeStep}
-                    setActiveStep={setActiveStep}
-                  />
+                {loading ? (
+                  <Flex
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    height={"400px"}
+                  >
+                    <Spinner
+                      thickness="4px"
+                      speed="0.65s"
+                      emptyColor="gray.200"
+                      color="teal.500"
+                      size="xl"
+                    />
+                  </Flex>
+                ) : (
+                  <>
+                    {activeStep == 0 && (
+                      <Idform
+                        step={activeStep}
+                        setActiveStep={setActiveStep}
+                        setTextData={setTextData}
+                      />
+                    )}
+                    {activeStep == 1 && (
+                      <EditForm
+                        step={activeStep}
+                        setActiveStep={setActiveStep}
+                        textData={textData}
+                      />
+                    )}
+                    {activeStep == 2 && (
+                      <FinalForm
+                        step={activeStep}
+                        setActiveStep={setActiveStep}
+                      />
+                    )}
+                    {activeStep == 3 && (
+                      <PaymentForm
+                        step={activeStep}
+                        setActiveStep={setActiveStep}
+                      />
+                    )}
+                  </>
                 )}
 
-                <Stack margin={5} spacing={6} direction={["column", "row"]}>
+                {/* <Stack margin={5} spacing={6} direction={["column", "row"]}>
                   <Button
                     w="50%"
                     onClick={() =>
@@ -133,7 +153,7 @@ const Create = () => {
                   >
                     Next
                   </Button>
-                </Stack>
+                </Stack> */}
               </CardBody>
             </Card>
           </GridItem>

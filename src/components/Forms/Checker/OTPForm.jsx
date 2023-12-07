@@ -14,7 +14,7 @@ import {
 import React, { useState } from "react";
 import { getUserDetails } from "../../../utils/apiService";
 
-const OTPForm = ({ setData }) => {
+const OTPForm = ({ setData, email, role }) => {
   const [id, setId] = useState("");
   const [OTP, setOTP] = useState("");
 
@@ -22,9 +22,10 @@ const OTPForm = ({ setData }) => {
   const handleVerification = (e) => {
     e.preventDefault();
     try {
-      const res = getUserDetails(OTP, id);
+      const res = getUserDetails(OTP, id, email, role);
       res.then((data) => {
         console.log(data);
+        setData(data.data);
       });
     } catch (error) {
       console.log(error);

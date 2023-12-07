@@ -1,19 +1,23 @@
 import {
+  Button,
   Checkbox,
-  Stack,
-  Text,
-  Grid,
   Flex,
   FormControl,
   FormLabel,
-  Input,
+  Grid,
   GridItem,
-  Button,
+  Input,
+  Stack,
+  Text,
   Textarea,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { setVerificationDetails } from "../../../utils/apiService";
 
-const NotaryForm = ({ data }) => {
+const NotaryForm = ({ data, Ncountry, Nstate }) => {
+  const toast = useToast();
+  const [dispute, setDispute] = useState(false);
   const [checkedItems, setCheckedItems] = useState([
     false,
     false,
@@ -23,22 +27,47 @@ const NotaryForm = ({ data }) => {
     false,
   ]);
   const [form, setForm] = useState({
-    firstname: data.firstname,
-    lastname: data.lastname,
-    country: data.country,
-    state: data.state,
-    Dob: data.Dob,
-    expiry: data.expiry,
+    firstname: data[0][2],
+    lastname: data[0][3],
+    country: data[0][10],
+    state: data[0][12],
+    Age: data[0][6],
+    occupation: data[0][9],
+    expiry: data[0][14],
+    address: data[0][5],
     sign: "",
     disputetext: "",
   });
-  const [dispute, setDispute] = useState(false);
+  const [verfication, setVerfication] = useState({
+    one_id: data[0][1],
+    veri_comments: "",
+    verifier_email: localStorage.getItem("email"),
+    country: Ncountry,
+    state: Nstate,
+  });
 
   const allChecked = checkedItems.every(Boolean);
   const isIndeterminate = checkedItems.some(Boolean) && !allChecked;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+  const handleVerificationChange = (e) => {
+    setVerfication({ ...verfication, [e.target.name]: e.target.value });
+  };
+
+  const handleVerficiation = (e) => {
+    e.preventDefault();
+    const res = setVerificationDetails(verfication, !dispute);
+    res.then((data) => {
+      console.log(data);
+      toast({
+        title: "Verification Success",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
+    });
   };
   return (
     <Stack>
@@ -151,7 +180,7 @@ const NotaryForm = ({ data }) => {
             <Input
               disabled
               onChange={handleChange}
-              value={form.Dob}
+              value={form.Age}
               type="text"
             />
           </FormControl>
@@ -185,35 +214,56 @@ const NotaryForm = ({ data }) => {
             mt={7}
           />
         </Flex>
+        <Flex alignItems={"center"}>
+          <FormControl id="firstname">
+            <FormLabel>Occupation</FormLabel>
+            <Input
+              disabled
+              name="occupation"
+              onChange={handleChange}
+              value={form.occupation}
+              type="text"
+            />
+          </FormControl>
+        </Flex>
         <GridItem colSpan={2}>
           <FormControl isRequired id="sign">
             <FormLabel>Signature</FormLabel>
-            <Input value={form.sign} onChange={handleChange} type="text" />
+            <Input
+              value={form.sign}
+              name="sign"
+              onChange={handleChange}
+              type="text"
+            />
           </FormControl>
         </GridItem>
         {dispute && (
-          <GridItem colSpan={2}>
-            <FormControl isRequired id="sign">
-              <FormLabel>Comment</FormLabel>
+          <>
+            <GridItem colSpan={2}>
+              <FormControl isRequired id="sign">
+                <FormLabel>Comment</FormLabel>
 
-              <Textarea
-                value={form.disputetext}
-                onChange={handleChange}
-                type="text"
-              />
-            </FormControl>
-          </GridItem>
+                <Textarea
+                  value={verfication.veri_comments}
+                  name="veri_comments"
+                  onChange={handleVerificationChange}
+                  type="text"
+                />
+              </FormControl>
+            </GridItem>
+            <GridItem colSpan={2}>
+              <Button w={"full"} onClick={handleVerficiation} colorScheme="red">
+                Send dispute
+              </Button>
+            </GridItem>
+          </>
         )}
 
         <Button onClick={() => setDispute(!dispute)} colorScheme="red">
           {dispute ? "Cancel Dispute" : "Dispute"}
         </Button>
         <a>
-          <Button
-            w={"full"}
-            isDisabled={form.sign.length < 3}
-            colorScheme="teal"
-          >
+          <Button w={"full"} colorScheme="teal" onClick={handleVerficiation}>
             Approve
           </Button>
         </a>

@@ -1,21 +1,28 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import AdminTable from "../../components/AdminTable";
-import {
-  Flex,
-  Heading,
-  Stack,
-  Stat,
-  StatArrow,
-  StatGroup,
-  StatHelpText,
-  StatLabel,
-  StatNumber,
-} from "@chakra-ui/react";
-import AdminStat from "../../components/AdminStat";
+import { Flex, Heading, Stack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import AdminStat from "../../components/AdminStat";
+import LogTable from "../../components/LogTable";
+import { getAdminStats } from "../../utils/apiService";
 
 const AHome = () => {
+  const email = localStorage.getItem("email");
+  const role = "admin";
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAdminStats(email, role);
+        console.log(response.data.data);
+        setData(response.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <>
       <motion.div
@@ -30,12 +37,24 @@ const AHome = () => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <AdminStat title={"Total Users"} value={345} color="red.300" />
-            <AdminStat title={"Total Users"} value={345} color="blue.300" />
-            <AdminStat title={"Total Users"} value={345} color="pink.300" />
+            <AdminStat
+              title={"Total Users"}
+              value={data?.total_users}
+              color="red.300"
+            />
+            <AdminStat
+              title={"Total Notaries"}
+              value={data?.total_notary}
+              color="blue.300"
+            />
+            <AdminStat
+              title={"Total Checkers"}
+              value={data?.total_checker}
+              color="pink.300"
+            />
           </Flex>
           <Heading mt={4}>Disputes</Heading>
-          <AdminTable />
+          <LogTable color={"blue"} email={email} role="admin" />
         </Stack>
       </motion.div>
     </>
