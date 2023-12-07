@@ -10,10 +10,10 @@ import {
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import EditForm from "../../../components/Forms/User/forms/EditForm";
-import FinalForm from "../../../components/Forms/User/forms/FinalForm";
+import EditForm from "../../../components/Forms/User/forms/Editform";
+import FinalForm from "../../../components/Forms/User/forms/Finalform";
 import Idform from "../../../components/Forms/User/forms/Idform";
-import PaymentForm from "../../../components/Forms/User/forms/PaymentForm";
+import PaymentForm from "../../../components/Forms/User/forms/Paymentform";
 import { getUserStatus } from "../../../utils/apiService";
 import StepperForm from "./StepperForm";
 
