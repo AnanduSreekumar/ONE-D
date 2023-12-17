@@ -140,5 +140,4 @@ Access the application by opening your web browser at http://localhost:3000. The
 
 
 ## License
-
 [MIT](https://choosealicense.com/licenses/mit/)
