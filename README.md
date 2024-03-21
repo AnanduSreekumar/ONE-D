@@ -3,8 +3,7 @@
 -**Professor [Sanjay Garje](https://www.linkedin.com/in/sanjaygarje/)**  
 -Students:
 1. **[Anandu Sreekumar](https://github.com/AnanduSreekumar)**
-2. **[Jeswanth Vadlamudi](https://github.com/jeswanthv)**
-3. **[G Sai Krishna](wwww.linkedin.com/in/gsaikrishna221)**
+
 
 
 
@@ -117,8 +116,6 @@ Implemented S3 bucket Lifecycle policy for Cost Optimization
 ### CI/CD: 
 <img align="center" src="https://github.com/AnanduSreekumar/ONE-D/blob/main/Screenshots_final/CICD.jpeg" alt="Cognito_ss" height="405" width="720" />
 
-### Effort Distribution:  
-<img align="center" src="https://github.com/AnanduSreekumar/ONE-D/blob/main/Screenshots_final/effort_distribution.png" alt="Edit_details" height="405" width="720" />
 
 ###  How to set up and run project locally?  
 
